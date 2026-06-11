@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NestManager · Student Accommodation Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F1D35;--navy2:#1A315A;--navy3:#070E1A;
+  --orange:#E8590A;--orange2:#FF6B1A;--orangeL:#FFF3EE;
+  --gold:#C9922A;--goldL:#FDF8F0;
+  --bg:#F3F5F9;--bg2:#EBF0F6;--white:#fff;
+  --border:#DCE3ED;--borderL:#EBF0F6;
+  --text:#0B1526;--text2:#475569;--text3:#8494A8;
+  --green:#059669;--greenL:#ECFDF5;
+  --red:#DC2626;--redL:#FEF2F2;
+  --amber:#D97706;--amberL:#FFFBEB;
+  --blue:#2563EB;--blueL:#EFF6FF;
+  --sh1:0 1px 3px rgba(15,29,53,.05);
+  --sh2:0 4px 12px rgba(15,29,53,.07);
+  --sh3:0 12px 32px rgba(15,29,53,.09);
+  --sh4:0 24px 48px rgba(15,29,53,.14);
+  --r:12px;--ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}
+input,select,textarea,button{font-family:inherit}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes slide{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.fu{animation:fadeUp .5s var(--ease) both}
+.fu1{animation:fadeUp .5s var(--ease) .12s both}
+.fu2{animation:fadeUp .5s var(--ease) .24s both}
+.fi{animation:fadeIn .25s ease both}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.show{display:flex}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s var(--ease);line-height:1}
+.btn-navy{background:var(--navy);color:#fff;box-shadow:0 3px 10px rgba(15,29,53,.2)}
+.btn-navy:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(15,29,53,.3)}
+.btn-orange{background:linear-gradient(135deg,var(--orange),var(--orange2));color:#fff;box-shadow:0 3px 10px rgba(232,89,10,.25)}
+.btn-orange:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(232,89,10,.35)}
+.btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--navy)}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border);padding:6px 12px;font-size:12px}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+
+/* ── INPUTS ── */
+.inp{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;color:var(--text);background:#fff;outline:none;transition:all .2s}
+.inp:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(15,29,53,.07)}
+.lbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:6px}
+
+/* ── PILLS ── */
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.pg{background:var(--greenL);color:#065F46}
+.pr{background:var(--redL);color:#991B1B}
+.pa{background:var(--amberL);color:#92400E}
+.pb{background:var(--blueL);color:#1E40AF}
+.pn{background:#E0E7FF;color:#3730A3}
+.po{background:var(--orangeL);color:#C2410C}
+.pgo{background:var(--goldL);color:#78350F}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:16px;box-shadow:var(--sh2);overflow:hidden}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ctitle{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--navy)}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:11px 16px;border-bottom:2px solid var(--border);background:var(--bg2);white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid var(--borderL);vertical-align:middle;color:var(--text)}
+tr:hover td{background:var(--bg)}
+
+/* ── KPI ── */
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;box-shadow:var(--sh1)}
+.kpi-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0}
+.kpi-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.kpi-val{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.03em}
+.kpi-sub{font-size:12px;color:var(--text2);margin-top:5px}
+.kpi-trend{font-size:11px;font-weight:700;margin-top:4px}
+
+/* ── LAYOUT ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.mb14{margin-bottom:14px}
+.mb20{margin-bottom:20px}
+.mb22{margin-bottom:22px}
+.ptitle{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.03em;margin-bottom:4px}
+.psub{font-size:13px;color:var(--text2);margin-bottom:20px}
+
+/* ── SIDEBAR ── */
+.sidebar{width:246px;background:var(--navy3);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-logo{padding:17px 15px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.sb-user{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:9px}
+.sb-sec{padding:12px 13px 3px;font-size:10px;color:rgba(255,255,255,.27);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 12px;margin:1px 7px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.44);font-size:12.5px;font-weight:400;transition:all .15s;border:none;background:transparent;width:calc(100% - 14px);text-align:left}
+.sb-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.sb-item.active{background:rgba(232,89,10,.2);color:var(--orange);font-weight:600}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sb-bot{margin-top:auto;padding:9px 7px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-logout{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.35);font-size:12px;border:none;background:transparent;width:100%;transition:all .15s}
+.sb-logout:hover{background:rgba(220,38,38,.15);color:#FC8181}
+
+/* ── TOPBAR ── */
+.topbar{height:55px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;box-shadow:var(--sh1);position:sticky;top:0;z-index:20}
+.tb-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:var(--navy);flex:1}
+
+/* ── NOTIF PANEL ── */
+.notif-panel{position:fixed;top:0;right:0;bottom:0;width:360px;background:#fff;border-left:1px solid var(--border);box-shadow:var(--sh4);z-index:100;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s var(--ease)}
+.notif-panel.open{transform:translateX(0)}
+
+/* ── AI ── */
+.ai-fab{position:fixed;bottom:26px;right:26px;width:52px;height:52px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;border-radius:15px;cursor:pointer;font-size:22px;box-shadow:var(--sh4);z-index:90;transition:all .2s;display:none;align-items:center;justify-content:center}
+.ai-fab:hover{transform:translateY(-2px) scale(1.06)}
+.ai-fab.show{display:flex}
+.ai-panel{position:fixed;bottom:88px;right:26px;width:340px;background:#fff;border-radius:18px;box-shadow:var(--sh4);border:1px solid var(--border);z-index:90;flex-direction:column;overflow:hidden;max-height:460px;display:none}
+.ai-panel.open{display:flex;animation:pop .3s var(--ease)}
+.ai-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;animation:bounce .9s infinite}
+.ai-dot:nth-child(2){animation-delay:.15s}
+.ai-dot:nth-child(3){animation-delay:.3s}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(7,14,26,.75);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:32px;width:100%;max-width:490px;box-shadow:var(--sh4);animation:pop .3s var(--ease);max-height:90vh;overflow-y:auto}
+
+/* ── YES/NO ── */
+.yn-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--borderL);font-size:13px;font-weight:500}
+.yn-row:last-child{border-bottom:none}
+.yn-btn{padding:4px 14px;border-radius:7px;border:1.5px solid var(--border);font-size:11px;font-weight:700;cursor:pointer;background:#fff;color:var(--text3);transition:all .15s;margin-left:4px}
+.yn-btn.y.on{background:var(--greenL);color:var(--green);border-color:#6EE7B7}
+.yn-btn.n.on{background:var(--redL);color:var(--red);border-color:#FCA5A5}
+
+/* ── ROW ── */
+.lrow{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--borderL)}
+.lrow:last-child{border-bottom:none}
+
+/* ── OCC BAR ── */
+.obar{height:4px;background:var(--borderL);border-radius:2px;overflow:hidden;margin-top:4px}
+.ofill{height:100%;border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ WELCOME ══ -->
+<div class="screen show" id="s-welcome" style="flex-direction:column;align-items:center;justify-content:center;background:var(--navy3);position:relative;overflow:hidden;padding:24px">
+  <div style="position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(232,89,10,.14),transparent);top:-20%;right:-10%;pointer-events:none"></div>
+  <div class="fu" style="text-align:center;z-index:1;max-width:620px">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:28px;background:rgba(255,255,255,.06);padding:10px 18px;border-radius:40px;border:1px solid rgba(255,255,255,.1)">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--orange),#c2410c);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:17px;color:#fff">N</div>
+      <div>
+        <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff;line-height:1">NestManager</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.05em;margin-top:2px">STUDENT ACCOMMODATION MANAGEMENT</div>
+      </div>
+    </div>
+    <h1 style="font-family:'Sora',sans-serif;font-size:clamp(30px,6vw,56px);font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1.1;margin-bottom:18px">
+      Student accommodation,<br><span style="color:var(--orange)">professionally managed.</span>
+    </h1>
+    <p style="font-size:16px;color:rgba(255,255,255,.45);line-height:1.75;max-width:460px;margin:0 auto 34px">The complete platform for student accommodation companies across South Africa. One system for every role.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-orange" style="padding:13px 34px;font-size:15px;font-family:'Sora',sans-serif;font-weight:700" onclick="showScreen('s-login')">Sign in</button>
+      <button onclick="showScreen('s-register')" style="padding:13px 34px;font-size:15px;font-weight:600;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:9px;color:#fff;cursor:pointer;transition:all .2s">Create account</button>
+    </div>
+    <div style="margin-top:42px;display:flex;gap:36px;justify-content:center;border-top:1px solid rgba(255,255,255,.08);padding-top:36px">
+      <div style="text-align:center"><div style="font-family:'Sora',sans-serif;font-size:24px;font-weight:800;color:#fff">50+</div><div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:3px">Properties</div></div>
+      <div style="text-align:center"><div style="font-family:'Sora',sans-serif;font-size:24px;font-weight:800;color:#fff">2,000+</div><div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:3px">Students</div></div>
+      <div style="text-align:center"><div style="font-family:'Sora',sans-serif;font-size:24px;font-weight:800;color:#fff">8</div><div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:3px">Portfolio Managers</div></div>
+      <div style="text-align:center"><div style="font-family:'Sora',sans-serif;font-size:24px;font-weight:800;color:#fff">4</div><div style="font-size:12px;color:rgba(255,255,255,.35);margin-top:3px">Resident Assistants</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LOGIN ══ -->
+<div class="screen" id="s-login" style="background:var(--navy3)">
+  <div style="flex:0 0 44%;background:linear-gradient(135deg,var(--navy),var(--navy3));padding:56px 44px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-20%;bottom:-15%;opacity:.04;font-size:260px;font-family:'Sora',sans-serif;font-weight:800;color:#fff;user-select:none">N</div>
+    <div class="fu" id="login-logo"></div>
+    <div class="fu1">
+      <h1 style="font-family:'Sora',sans-serif;font-size:clamp(24px,3.5vw,38px);font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1.15;margin-bottom:16px">Your complete accommodation command centre.</h1>
+      <p style="font-size:14px;color:rgba(255,255,255,.45);line-height:1.75;max-width:340px">From director oversight to HK weekly reports — every role, one platform.</p>
+    </div>
+    <div class="fu2" style="display:flex;gap:28px;border-top:1px solid rgba(255,255,255,.1);padding-top:24px">
+      <div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff">50+</div><div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px">Properties</div></div>
+      <div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff">2k+</div><div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px">Students</div></div>
+      <div><div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff">6</div><div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px">Roles</div></div>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;background:#fff;padding:32px 20px;overflow-y:auto">
+    <div class="fu" style="width:100%;max-width:390px">
+      <button onclick="showScreen('s-welcome')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;margin-bottom:20px;display:flex;align-items:center;gap:5px">← Back to home</button>
+      <h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--navy);letter-spacing:-.04em;margin-bottom:5px">Sign in</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:22px">NestManager · Suburban Digs</p>
+      <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;border:1.5px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;font-size:14px;font-weight:500;margin-bottom:16px;transition:all .2s" onmouseover="this.style.borderColor='#0078D4'" onmouseout="this.style.borderColor='var(--border)'">
+        <svg width="20" height="20" viewBox="0 0 21 21"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+        Continue with Microsoft
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:12px;color:var(--text3)">or use email</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+        <div><label class="lbl">Email</label><input class="inp" type="email" id="login-email" placeholder="yourname@nestmanager.app"></div>
+        <div><label class="lbl">Password</label><input class="inp" type="password" id="login-pass" placeholder="••••••••"></div>
+      </div>
+      <div id="login-err" style="display:none;background:var(--redL);border:1px solid #FECACA;border-radius:8px;padding:10px 13px;margin-bottom:14px;color:var(--red);font-size:13px"></div>
+      <button class="btn btn-navy" onclick="tryLogin()" style="width:100%;padding:13px;font-size:15px;font-family:'Sora',sans-serif;font-weight:700">Sign in to NestManager</button>
+      <div style="margin-top:20px;background:var(--bg);border-radius:12px;border:1px dashed var(--border);padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em;margin-bottom:10px">DEMO — CLICK ANY ROLE TO LOGIN</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px" id="demo-btns"></div>
+      </div>
+      <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:18px">🔒 Protected by Microsoft Entra ID · Suburban Realty © 2025</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REGISTER ══ -->
+<div class="screen" id="s-register" style="align-items:center;justify-content:center;background:var(--navy3);padding:24px">
+  <div class="fu" style="background:#fff;border-radius:20px;padding:34px;width:100%;max-width:450px;box-shadow:var(--sh4)">
+    <button onclick="showScreen('s-welcome')" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:13px;margin-bottom:18px;display:flex;align-items:center;gap:5px">← Back</button>
+    <div id="reg-logo" style="margin-bottom:18px"></div>
+    <h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:5px">Register your company</h2>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:22px">Your team will see <strong>NestManager · Your Company</strong></p>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label class="lbl">Company name</label><input class="inp" placeholder="e.g. Suburban Digs"></div>
+      <div class="g2">
+        <div><label class="lbl">First name</label><input class="inp" placeholder="Ruvimbo"></div>
+        <div><label class="lbl">Last name</label><input class="inp" placeholder="Muringi"></div>
+      </div>
+      <div><label class="lbl">Work email</label><input class="inp" type="email" placeholder="admin@yourcompany.co.za"></div>
+      <div><label class="lbl">Properties</label><select class="inp"><option>1–5</option><option>6–20</option><option selected>21–50</option><option>50+</option></select></div>
+      <div><label class="lbl">Password</label><input class="inp" type="password" placeholder="Create a strong password"></div>
+    </div>
+    <button class="btn btn-orange" style="width:100%;margin-top:18px;padding:13px;font-size:15px;font-family:'Sora',sans-serif;font-weight:700">Create NestManager account</button>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:14px">By registering you agree to NestManager Terms of Service</p>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div class="screen" id="s-app" style="flex-direction:row">
+  <div class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--orange),#c2410c);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:16px;color:#fff;flex-shrink:0;box-shadow:0 3px 10px rgba(232,89,10,.35)">N</div>
+      <div><div style="font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:#fff;line-height:1">NestManager</div><div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:2px">· Suburban Digs</div></div>
+    </div>
+    <div class="sb-user">
+      <div id="sb-avatar" style="width:30px;height:30px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff;flex-shrink:0">U</div>
+      <div style="min-width:0">
+        <div id="sb-name" style="font-size:12px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">User</div>
+        <span id="sb-rolepill" class="pill po" style="font-size:10px;margin-top:2px;display:inline-block">Role</span>
+      </div>
+    </div>
+    <nav id="sb-nav" style="flex:1;padding:8px 0;overflow-y:auto"></nav>
+    <div class="sb-bot">
+      <button class="sb-item" onclick="toggleNotif()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span style="flex:1">Notifications</span>
+        <span class="sb-badge" id="notif-count">0</span>
+      </button>
+      <button class="sb-logout" onclick="doLogout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div class="topbar">
+      <div class="tb-title" id="tb-title">Dashboard</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="toggleNotif()" style="position:relative;width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s" onmouseover="this.style.borderColor='var(--navy)'" onmouseout="this.style.borderColor='var(--border)'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span id="tb-notif-dot" style="display:none;position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #fff"></span>
+        </button>
+        <button class="btn btn-ghost" id="qr-btn" onclick="openQR()" style="display:none;font-size:12px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/></svg>
+          QR Lease
+        </button>
+        <button class="btn btn-orange" style="font-size:12px;padding:7px 14px">+ Add</button>
+      </div>
+    </div>
+    <main style="flex:1;overflow-y:auto;padding:20px" id="app-content"></main>
+  </div>
+</div>
+
+<!-- ══ NOTIFICATIONS ══ -->
+<div class="notif-panel" id="notif-panel">
+  <div style="padding:15px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--navy)">Notifications</span>
+      <span class="pill po" id="notif-pill">0 new</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button onclick="markAllRead()" style="font-size:11px;font-weight:700;color:var(--orange);background:none;border:none;cursor:pointer">Mark all read</button>
+      <button onclick="toggleNotif()" style="width:26px;height:26px;border-radius:6px;border:1.5px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px">✕</button>
+    </div>
+  </div>
+  <div id="notif-list" style="flex:1;overflow-y:auto"></div>
+</div>
+
+<!-- ══ AI ASSISTANT ══ -->
+<button class="ai-fab" id="ai-fab" onclick="toggleAI()">✨</button>
+<div class="ai-panel" id="ai-panel">
+  <div style="background:linear-gradient(135deg,var(--navy),var(--navy2));padding:13px 15px;display:flex;align-items:center;gap:9px">
+    <div style="width:30px;height:30px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">✨</div>
+    <div>
+      <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff">NestManager AI</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.4)">Your property assistant</div>
+    </div>
+    <button onclick="toggleAI()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-size:17px;line-height:1">✕</button>
+  </div>
+  <div id="ai-quick" style="padding:9px 11px;border-bottom:1px solid var(--border);display:flex;gap:5px;flex-wrap:wrap">
+    <button onclick="aiSend('Write a professional weekly owner report for all properties.')" style="padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--orange)';this.style.borderColor='var(--orange)'" onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--border)'">📄 Owner report</button>
+    <button onclick="aiSend('Draft a professional email to property owners summarising this week.')" style="padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--orange)';this.style.borderColor='var(--orange)'" onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--border)'">✉️ Owner email</button>
+    <button onclick="aiSend('Which HKs have not submitted their weekly report this week?')" style="padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--orange)';this.style.borderColor='var(--orange)'" onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--border)'">📋 Missing reports</button>
+    <button onclick="aiSend('List all urgent maintenance issues across all properties.')" style="padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--orange)';this.style.borderColor='var(--orange)'" onmouseout="this.style.color='var(--text2)';this.style.borderColor='var(--border)'">🔧 Urgent issues</button>
+  </div>
+  <div id="ai-msgs" style="padding:12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;max-height:280px">
+    <div style="max-width:88%;padding:9px 13px;border-radius:11px 11px 11px 2px;font-size:12px;line-height:1.6;background:var(--bg);color:var(--text)">Hi! I'm your NestManager AI. I can write owner reports, draft emails, summarise maintenance and more. What do you need?</div>
+  </div>
+  <div style="padding:9px 11px;border-top:1px solid var(--border);display:flex;gap:7px">
+    <input id="ai-input" placeholder="Ask anything…" style="flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter')aiSend()">
+    <button onclick="aiSend()" style="width:34px;height:34px;background:linear-gradient(135deg,var(--orange),var(--orange2));border:none;border-radius:8px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">➤</button>
+  </div>
+</div>
+
+<!-- ══ QR MODAL ══ -->
+<div class="modal-bg" id="qr-modal">
+  <div class="modal-box" id="qr-content"></div>
+</div>
+
+<script>
+// ── DATA ──
+const ROLES=[
+  {role:'director',label:'Director',desc:'Full access — all properties, financials, reports'},
+  {role:'ops',label:'Operations Manager',desc:'Oversee all PMs, HKs and reports'},
+  {role:'accounts',label:'Accounts',desc:'NSFAS payments, lease financials'},
+  {role:'pm',label:'Portfolio Manager / RA',desc:'Your properties, students, HKs'},
+  {role:'hk',label:'Housekeeper',desc:'Submit reports, log maintenance'},
+  {role:'student',label:'Student',desc:'Lease, requests, browse rooms'},
+];
+const PROPS=[
+  {id:'p1',name:'Suburban House 4',area:'Hatfield',city:'Pretoria',rooms:12,occ:11,pm:'Portfolio Manager',hk:'Thabo M.',ra:null,rent:3800},
+  {id:'p2',name:'Digs on Lynnwood',area:'Lynnwood',city:'Pretoria',rooms:20,occ:17,pm:'Portfolio Manager',hk:'Nomsa D.',ra:'Lunathi S.',rent:4200},
+  {id:'p3',name:'Menlyn Student Lodge',area:'Menlyn',city:'Pretoria',rooms:30,occ:28,pm:'Portfolio Manager',hk:'Lebo T.',ra:'Bonolo M.',rent:4800},
+  {id:'p4',name:'Brooklyn Residence',area:'Brooklyn',city:'Pretoria',rooms:18,occ:14,pm:'Portfolio Manager',hk:'Sipho N.',ra:'Abigail M.',rent:3800},
+  {id:'p5',name:'Arcadia Heights',area:'Arcadia',city:'Pretoria',rooms:25,occ:18,pm:'Portfolio Manager',hk:'Zanele M.',ra:'Sindy M.',rent:4200},
+];
+const STUDENTS=[
+  {id:'s1',name:'Thandeka Mokoena',room:'101',prop:'p1',fund:'nsfas',nsfas:'NSF-2024-001',rent:3800,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0001015800080'},
+  {id:'s2',name:'Sipho Dlamini',room:'102',prop:'p1',fund:'private',nsfas:null,rent:3800,ls:'2025-01-15',le:'2025-12-31',paid:true,idno:'9908125500086'},
+  {id:'s3',name:'Nomvula Zulu',room:'103',prop:'p1',fund:'nsfas',nsfas:'NSF-2024-003',rent:3800,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0204306700083'},
+  {id:'s4',name:'Kagiso Molefe',room:'104',prop:'p1',fund:'private',nsfas:null,rent:3800,ls:'2025-02-01',le:'2025-10-31',paid:false,idno:'0109125800081'},
+  {id:'s5',name:'Lerato Nkosi',room:'105',prop:'p1',fund:'nsfas',nsfas:'NSF-2024-005',rent:4200,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0302286100087'},
+  {id:'s6',name:'Bongani Khumalo',room:'201',prop:'p2',fund:'bursary',nsfas:null,rent:4200,ls:'2025-01-20',le:'2025-12-20',paid:true,idno:'0205125900084'},
+  {id:'s7',name:'Precious Mahlangu',room:'202',prop:'p2',fund:'nsfas',nsfas:'NSF-2024-007',rent:4200,ls:'2025-02-10',le:'2025-11-30',paid:false,idno:'0107146200082'},
+];
+const MAINT=[
+  {id:'m1',prop:'p1',room:'204',issue:'Geyser burst',action:'Plumber called',urg:'critical',status:'open',by:'HK Thabo',date:'2025-06-07'},
+  {id:'m2',prop:'p2',room:'Main gate',issue:'Biometric gate not working',action:'Technician booked',urg:'urgent',status:'in_progress',by:'HK Nomsa',date:'2025-06-06'},
+  {id:'m3',prop:'p3',room:'Floor 2',issue:'Wi-Fi down',action:'ISP contacted',urg:'normal',status:'in_progress',by:'HK Lebo',date:'2025-06-07'},
+  {id:'m4',prop:'p4',room:'108',issue:'Broken window',action:'Glazier scheduled',urg:'normal',status:'pending',by:'HK Sipho',date:'2025-06-05'},
+  {id:'m5',prop:'p1',room:'301',issue:'Leaking tap',action:'Fixed by plumber',urg:'normal',status:'fixed',by:'HK Thabo',date:'2025-06-04'},
+];
+const ELEC=[
+  {room:'101',student:'Thandeka M.',units:12,last:'2025-05-15'},
+  {room:'102',student:'Sipho D.',units:50,last:'2025-05-20'},
+  {room:'103',student:'Nomvula Z.',units:85,last:'2025-05-25'},
+  {room:'104',student:'Kagiso M.',units:15,last:'2025-05-10'},
+  {room:'105',student:'Lerato N.',units:70,last:'2025-05-28'},
+];
+const REPORTS=[
+  {prop:'p1',name:'Suburban House 4',hk:'Thabo M.',sub:'2025-06-01 14:32',status:'submitted'},
+  {prop:'p2',name:'Digs on Lynnwood',hk:'Nomsa D.',sub:'2025-06-01 11:05',status:'submitted'},
+  {prop:'p4',name:'Brooklyn Residence',hk:'Sipho N.',sub:null,status:'overdue'},
+  {prop:'p3',name:'Menlyn Student Lodge',hk:'Lebo T.',sub:'2025-05-31 16:44',status:'submitted'},
+  {prop:'p5',name:'Arcadia Heights',hk:'Zanele M.',sub:null,status:'pending'},
+];
+let NOTIFS=[
+  {id:1,type:'maintenance',msg:'🔧 Urgent: Geyser burst Room 204 — Suburban House 4.',time:'2 min ago',unread:true},
+  {id:2,type:'maintenance',msg:'🔒 Biometric gate not working at Digs on Lynnwood.',time:'1 hour ago',unread:true},
+  {id:3,type:'electricity',msg:'⚡ Low electricity: Room 101 (12 units) — Suburban House 4.',time:'3 hours ago',unread:true},
+  {id:4,type:'hk',msg:'📋 HK report overdue: Brooklyn Residence — Sipho N.',time:'5 hours ago',unread:true},
+  {id:5,type:'payment',msg:'💰 NSFAS confirmed: R3,800 for Thandeka Mokoena Room 101.',time:'Yesterday',unread:true},
+  {id:6,type:'lease',msg:'📄 New lease QR application — Sipho Khumalo, Digs on Lynnwood.',time:'2 hours ago',unread:true},
+];
+
+let currentUser=null;
+let currentView='dashboard';
+let ynState={};
+
+// ── HELPERS ──
+function logo(dark,sm){
+  const fs=sm?'14px':'17px';const sub=sm?'9px':'10px';const sz=sm?32:38;
+  return `<div style="display:flex;align-items:center;gap:10px"><div style="width:${sz}px;height:${sz}px;border-radius:9px;background:linear-gradient(135deg,var(--orange),#c2410c);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:${sm?15:18}px;color:#fff;box-shadow:0 3px 10px rgba(232,89,10,.35);flex-shrink:0">N</div><div><div style="font-family:'Sora',sans-serif;font-weight:800;font-size:${fs};color:${dark?'#fff':'var(--navy)'};line-height:1">NestManager</div><div style="font-size:${sub};color:${dark?'rgba(255,255,255,.35)':'var(--text3)'};margin-top:2px">· Suburban Digs</div></div></div>`;
+}
+function av(name,size=32){
+  const init=(name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:${Math.round(size*.34)}px;font-weight:700;flex-shrink:0">${init}</div>`;
+}
+function kpi(label,value,sub,trend,color){
+  return `<div class="kpi"><div class="kpi-bar" style="background:${color||'var(--orange)'}"></div><div class="kpi-lbl">${label}</div><div class="kpi-val">${value}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}${trend?`<div class="kpi-trend" style="color:${trend.startsWith('+')?'var(--green)':'var(--red)'}">${trend}</div>`:''}</div>`;
+}
+function pill(text,cls){return `<span class="pill ${cls}">${text}</span>`;}
+function pct(occ,rooms){return Math.round((occ/rooms)*100);}
+function occBar(p){const c=p>=85?'var(--green)':p>=70?'var(--amber)':'var(--red)';return `<div class="obar"><div class="ofill" style="width:${p}%;background:${c}"></div></div>`;}
+function monthsLeft(le){return Math.round((new Date(le)-new Date())/(1000*60*60*24*30));}
+function propName(id){return (PROPS.find(p=>p.id===id)||{}).name||'';}
+function svgIcon(d,s=15,sw=1.8){return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${Array.isArray(d)?d.map(p=>`<path d="${p}"/>`).join(''):typeof d==='string'?`<path d="${d}"/>`:d}</svg>`;}
+
+// ── SCREEN NAV ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+
+// ── INIT STATIC ELEMENTS ──
+document.getElementById('login-logo').innerHTML=logo(true,false);
+document.getElementById('reg-logo').innerHTML=logo(false,true);
+const demoBtns=document.getElementById('demo-btns');
+ROLES.forEach(r=>{
+  const b=document.createElement('button');
+  b.style.cssText='padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:11px;font-weight:600;color:var(--navy);text-align:left;transition:all .15s;font-family:inherit';
+  b.innerHTML=`<div>${r.label}</div><div style="font-size:10px;color:var(--text3);margin-top:1px;font-weight:400">${r.desc}</div>`;
+  b.onmouseover=()=>b.style.borderColor='var(--orange)';
+  b.onmouseout=()=>b.style.borderColor='var(--border)';
+  b.onclick=()=>loginAs(r.role);
+  demoBtns.appendChild(b);
+});
+
+// ── LOGIN ──
+function tryLogin(){
+  const e=document.getElementById('login-email').value;
+  const p=document.getElementById('login-pass').value;
+  const err=document.getElementById('login-err');
+  // accept any credentials for demo
+  if(e&&p){loginAs('director');}
+  else{err.style.display='block';err.textContent='Please enter email and password. Or use a demo button below.';}
+}
+function loginAs(role){
+  const labels={director:'Director',ops:'Operations Manager',accounts:'Accounts',pm:'Portfolio Manager',hk:'Housekeeper',student:'Student'};
+  currentUser={role,name:labels[role]};
+  setupApp();
+  showScreen('s-app');
+}
+function doLogout(){currentUser=null;showScreen('s-welcome');}
+
+// ── APP SETUP ──
+const rolePillMap={director:'pn',ops:'po',accounts:'pgo',pm:'po',hk:'pb',student:'pg'};
+const roleLabel={director:'Director',ops:'Operations Manager',accounts:'Accounts',pm:'Portfolio Manager',hk:'Housekeeper',student:'Student'};
+
+function setupApp(){
+  const r=currentUser.role;
+  // user info
+  document.getElementById('sb-avatar').textContent=currentUser.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sb-name').textContent=currentUser.name;
+  const rp=document.getElementById('sb-rolepill');
+  rp.className=`pill ${rolePillMap[r]}`;rp.textContent=roleLabel[r];
+  // qr button
+  document.getElementById('qr-btn').style.display=['pm','ops','director'].includes(r)?'flex':'none';
+  // ai fab
+  document.getElementById('ai-fab').className='ai-fab'+(['pm','ops','director'].includes(r)?' show':'');
+  // build nav
+  buildNav(r);
+  // render notifs
+  renderNotifs();
+  // show dashboard
+  showView('dashboard');
+}
+
+function buildNav(r){
+  const nav=document.getElementById('sb-nav');
+  nav.innerHTML='';
+  const sections=[
+    {title:'Overview',items:[
+      {id:'dashboard',label:'Dashboard',icon:'grid'},
+      ...(['director','ops'].includes(r)?[{id:'org',label:'Organisation',icon:'org'}]:[]),
+    ]},
+    {title:'Management',items:[
+      ...(!['student','hk'].includes(r)?[{id:'properties',label:'Properties',icon:'home'}]:[]),
+      ...(!['student','hk'].includes(r)?[{id:'pms',label:'Portfolio Managers & HKs',icon:'users'}]:[]),
+      ...(!['hk'].includes(r)?[{id:'students',label:'Students',icon:'users'}]:[]),
+      ...(['director','ops','accounts'].includes(r)?[{id:'payments',label:'Payments & NSFAS',icon:'money'}]:[]),
+      {id:'maintenance',label:'Maintenance',icon:'tool',badge:r!=='student'?7:0},
+      ...(!['student'].includes(r)?[{id:'electricity',label:'Electricity',icon:'zap'}]:[]),
+      {id:'hkreports',label:r==='hk'?'Submit Report':'HK Reports',icon:'clip',badge:r==='hk'?1:r!=='student'?4:0},
+      {id:'leases',label:'Leases',icon:'file'},
+    ]},
+    {title:'Students',items:[{id:'portal',label:'Student Portal',icon:'door'}]},
+  ];
+  const icons={
+    grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+    home:'<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    users:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
+    tool:'<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>',
+    zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    file:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
+    clip:'<path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>',
+    money:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>',
+    org:'<circle cx="9" cy="6" r="2"/><path d="M9 8v3"/><circle cx="5" cy="14" r="2"/><circle cx="13" cy="14" r="2"/><path d="M5 12v2M13 12v2M7 11h4"/>',
+    door:'<path d="M3 3h10v18H3z"/><path d="M17 3h4v18h-4"/><line x1="13" y1="12" x2="13.01" y2="12"/>',
+  };
+  sections.forEach(sec=>{
+    const s=document.createElement('div');
+    s.className='sb-sec';s.textContent=sec.title;nav.appendChild(s);
+    sec.items.forEach(item=>{
+      const b=document.createElement('button');
+      b.className='sb-item'+(currentView===item.id?' active':'');
+      b.id='nav-'+item.id;
+      b.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[item.icon]||''}</svg><span style="flex:1">${item.label}</span>${item.badge>0?`<span class="sb-badge">${item.badge}</span>`:''}`;
+      b.onclick=()=>showView(item.id);
+      nav.appendChild(b);
+    });
+  });
+}
+
+const viewTitles={dashboard:'Dashboard',org:'Organisation',properties:'Properties',pms:'Portfolio Managers & HKs',students:'Students',payments:'Payments & NSFAS',maintenance:'Maintenance',electricity:'Electricity Tracker',hkreports:'HK Reports',leases:'Leases',portal:'Student Portal'};
+
+function showView(id){
+  currentView=id;
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);
+  if(nb)nb.classList.add('active');
+  document.getElementById('tb-title').textContent=viewTitles[id]||'Dashboard';
+  const c=document.getElementById('app-content');
+  c.innerHTML='';
+  const d=document.createElement('div');d.className='fi';
+  d.innerHTML=getView(id);
+  c.appendChild(d);
+  // yn bindings
+  c.querySelectorAll('.yn-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      const key=btn.dataset.key;const val=btn.dataset.val;
+      c.querySelectorAll(`.yn-btn[data-key="${key}"]`).forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+    };
+  });
+}
+
+// ── VIEWS ──
+function getView(id){
+  const r=currentUser.role;
+  const nsfas=STUDENTS.filter(s=>s.fund==='nsfas').length;
+  const unpaid=STUDENTS.filter(s=>!s.paid).length;
+
+  if(id==='dashboard') return `
+    <div class="ptitle">Good morning 👋</div>
+    <div class="psub">NestManager · Suburban Digs · ${new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+    ${['director','ops'].includes(r)?`<div style="background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:14px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px"><div style="font-size:26px">🏢</div><div><div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff">Suburban Digs — NestManager Platform</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">Directors: Ruvimbo Muringi · Wilson Adikitoruweri &nbsp;|&nbsp; Ops: Nosiphamandla Mgijima &nbsp;|&nbsp; ${PROPS.length} properties · ${STUDENTS.length} students · 8 PMs · 4 RAs</div></div></div>`:''}
+    <div class="g4 mb20">
+      ${kpi('Properties',r==='hk'?'1':r==='pm'?'10':PROPS.length,r==='hk'?'Suburban House 4':'Pretoria & surrounds',null,'var(--orange)')}
+      ${kpi('Students',r==='hk'?'12':STUDENTS.length,`${nsfas} NSFAS · ${STUDENTS.length-nsfas} private`,null,'var(--blue)')}
+      ${kpi('Open Maintenance',MAINT.filter(m=>m.status!=='fixed').length,`${MAINT.filter(m=>m.urg==='critical').length} critical`,null,'var(--red)')}
+      ${kpi('Payments Outstanding',unpaid,`${unpaid} students with overdue rent`,unpaid>0?`${unpaid} need follow-up`:'+All current','var(--gold)')}
+    </div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card">
+        <div class="card-hdr"><div class="ctitle">🏠 Properties overview</div>${pill(PROPS.length+' total','po')}</div>
+        <div style="padding:0 16px">
+          ${PROPS.map(p=>{const pc=pct(p.occ,p.rooms);return `<div class="lrow">
+            <div style="width:32px;height:32px;border-radius:8px;background:var(--orangeL);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🏠</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--navy)">${p.name}</div><div style="font-size:11px;color:var(--text3)">${p.area} · PM: ${p.pm} · HK: ${p.hk}</div></div>
+            <div style="text-align:right;min-width:80px"><div style="font-size:13px;font-weight:800">${p.occ}/${p.rooms}</div>${occBar(pc)}<div style="font-size:10px;color:var(--text3);margin-top:2px">${pc}%</div></div>
+          </div>`}).join('')}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="padding:16px">
+          <div class="ctitle" style="margin-bottom:12px">🔧 Open maintenance</div>
+          ${MAINT.filter(m=>m.status!=='fixed').slice(0,4).map(m=>`
+          <div style="display:flex;align-items:flex-start;gap:9px;margin-bottom:9px">
+            <div style="width:8px;height:8px;border-radius:50%;background:${m.urg==='critical'?'var(--red)':m.urg==='urgent'?'var(--amber)':'var(--text3)'};flex-shrink:0;margin-top:4px"></div>
+            <div style="flex:1"><div style="font-size:12px;font-weight:600">${m.issue} — Rm ${m.room}</div><div style="font-size:11px;color:var(--text3)">${propName(m.prop)}</div></div>
+            ${pill(m.urg,m.urg==='critical'?'pr':m.urg==='urgent'?'pa':'pn')}
+          </div>`).join('')}
+        </div>
+        <div class="card" style="padding:16px">
+          <div class="ctitle" style="margin-bottom:12px">📋 HK reports</div>
+          ${[['Submitted','46/50','var(--green)'],['Outstanding','4','var(--red)'],['Owner reports sent','50/50','var(--green)'],['Due Sunday','17:00','var(--amber)']].map(([l,v,c])=>`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;font-weight:500"><span style="color:var(--text2)">${l}</span><span style="font-weight:800;color:${c}">${v}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="card" style="padding:16px">
+        <div class="ctitle" style="margin-bottom:12px">💰 Payments</div>
+        ${[['NSFAS paid',nsfas,'65%','var(--green)'],['Private paid',STUDENTS.filter(s=>s.fund!=='nsfas'&&s.paid).length,'28%','var(--blue)'],['Outstanding',unpaid,'7%','var(--red)']].map(([l,v,w,c])=>`<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:4px"><span style="color:var(--text2)">${l}</span><span style="color:${c}">${v}</span></div><div style="height:4px;background:var(--borderL);border-radius:2px;overflow:hidden"><div style="width:${w};height:100%;background:${c};border-radius:2px"></div></div></div>`).join('')}
+      </div>
+      <div class="card" style="padding:16px">
+        <div class="ctitle" style="margin-bottom:12px">⚡ Electricity alerts</div>
+        ${ELEC.filter(e=>e.units<50).map(e=>`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><span style="font-size:12px;color:var(--text2)">Room ${e.room}</span>${pill(e.units+' units',e.units<=20?'pr':'pa')}</div>`).join('')}
+      </div>
+      <div class="card" style="padding:16px">
+        <div class="ctitle" style="margin-bottom:12px">📄 Leases</div>
+        ${[['Active',STUDENTS.length,'var(--green)'],['Expiring 30d','2','var(--amber)'],['Pending sign','3','var(--red)'],['New apps','4','var(--blue)']].map(([l,v,c])=>`<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;font-weight:500"><span style="color:var(--text2)">${l}</span><span style="font-weight:800;color:${c}">${v}</span></div>`).join('')}
+      </div>
+    </div>`;
+
+  if(id==='org') return `
+    <div class="ptitle">Organisation Structure</div>
+    <div class="psub">Suburban Digs · NestManager — Full company hierarchy</div>
+    <div class="card" style="padding:22px">
+      <div class="g2 mb14">
+        ${['Ruvimbo Muringi|Principal Property Practitioner','Wilson Adikitoruweri|Director'].map(s=>{const[n,t]=s.split('|');return `<div style="background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:12px;padding:18px;color:#fff"><div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800">${n}</div><div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:4px">${t}</div>${pill('Full access','pn')}</div>`;}).join('')}
+      </div>
+      <div style="background:var(--orangeL);border:1.5px solid rgba(232,89,10,.25);border-radius:12px;padding:18px;margin-bottom:14px">
+        <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--navy)">Nosiphamandla Mgijima</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">Operations Manager · Oversees all Portfolio Managers</div>
+        ${pill('Full access','po')}
+      </div>
+      <div class="g2 mb14">
+        ${['Chiedza Katsere','Bonginkosi Sityana'].map(n=>`<div style="background:var(--goldL);border:1.5px solid rgba(201,146,42,.25);border-radius:12px;padding:16px"><div style="font-size:13px;font-weight:700;color:var(--navy)">${n}</div><div style="font-size:12px;color:var(--text2);margin-top:3px">Accounts · Finance & NSFAS</div>${pill('Finance access','pgo')}</div>`).join('')}
+      </div>
+      <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px">Portfolio Managers & Resident Assistants</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px">
+        ${['Emihle Bantshi','Thando Ngwadla','Thammie Mafuleka','Lungile Mhlongo','Keletjo Kekana','Shakira Adams','Thando Khanya','Phumlani Mabuza (Asst. PM)'].map(n=>`<div style="background:var(--orangeL);border:1.5px solid rgba(232,89,10,.18);border-radius:9px;padding:10px 12px"><div style="font-size:12px;font-weight:700;color:var(--navy)">${n}</div><div style="font-size:11px;color:var(--orange);margin-top:2px;font-weight:600">Portfolio Manager</div></div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px">
+        ${['Lunathi Sizani','Bonolo Maputla','Abigail Mashiya','Sindy Mbundwini'].map(n=>`<div style="background:var(--goldL);border:1.5px solid rgba(201,146,42,.25);border-radius:9px;padding:10px 12px"><div style="font-size:12px;font-weight:700;color:var(--navy)">${n}</div><div style="font-size:11px;color:var(--amber);margin-top:2px;font-weight:600">Resident Assistant (RA)</div></div>`).join('')}
+      </div>
+    </div>`;
+
+  if(id==='properties') return `
+    <div class="ptitle">Properties</div><div class="psub">All properties with portfolio managers, HKs and occupancy</div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">🏠 All properties</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">+ Add property</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Property</th><th>Area</th><th>Portfolio Manager</th><th>HK</th><th>RA</th><th>Rooms</th><th>Occupancy</th><th>Rent</th></tr></thead><tbody>
+        ${PROPS.map(p=>{const pc=pct(p.occ,p.rooms);return `<tr><td><div style="font-weight:700">${p.name}</div><div style="font-size:11px;color:var(--text3)">${p.city}</div></td><td style="color:var(--text2)">${p.area}</td><td style="font-weight:600">${p.pm}</td><td style="color:var(--text2)">${p.hk}</td><td style="font-size:12px;color:var(--amber);font-weight:500">${p.ra||'—'}</td><td style="font-weight:700">${p.rooms}</td><td><div style="display:flex;align-items:center;gap:8px"><div style="width:56px;height:4px;background:var(--borderL);border-radius:2px;overflow:hidden"><div style="width:${pc}%;height:100%;background:${pc>=85?'var(--green)':pc>=70?'var(--amber)':'var(--red)'};border-radius:2px"></div></div><span style="font-size:12px;font-weight:800;color:${pc>=85?'var(--green)':pc>=70?'var(--amber)':'var(--red)'}">${pc}%</span></div></td><td style="font-weight:700">R ${p.rent.toLocaleString()}/mo</td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if(id==='pms'){
+    const pms=[
+      {name:'Emihle Bantshi',props:[{name:'Suburban House 4',hk:'Thabo M.',rooms:12,occ:92},{name:'Digs on Lynnwood',hk:'Nomsa D.',rooms:20,occ:85,ra:'Lunathi S.'}]},
+      {name:'Thando Ngwadla',props:[{name:'Menlyn Student Lodge',hk:'Lebo T.',rooms:30,occ:93,ra:'Bonolo M.'},{name:'Brooklyn Residence',hk:'Sipho N.',rooms:18,occ:78,ra:'Abigail M.'}]},
+      {name:'Shakira Adams',props:[{name:'Arcadia Heights',hk:'Zanele M.',rooms:25,occ:72,ra:'Sindy M.'}]},
+      {name:'Keletjo Kekana',props:[{name:'Sunnyside Court',hk:'Busi N.',rooms:22,occ:86}]},
+    ];
+    return `<div class="ptitle">Portfolio Managers & HKs</div><div class="psub">Each PM with their assigned properties and housekeepers</div>`+
+    pms.map(pm=>`<div class="card mb14">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px">
+        ${av(pm.name,40)}
+        <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--navy)">${pm.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${pm.props.length} properties · ${pm.props.reduce((a,p)=>a+p.rooms,0)} rooms</div></div>
+        ${pill('Portfolio Manager','po')}
+      </div>
+      <div style="padding:14px;display:grid;grid-template-columns:repeat(${Math.min(pm.props.length,3)},1fr);gap:10px">
+        ${pm.props.map(p=>`<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 13px"><div style="font-size:12px;font-weight:700;color:var(--navy)">${p.name}</div><div style="font-size:11px;color:var(--text3);margin-top:3px">HK: ${p.hk}</div>${p.ra?`<div style="font-size:11px;color:var(--amber);font-weight:600;margin-top:2px">RA: ${p.ra}</div>`:''}<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span style="font-size:11px;color:var(--text3)">${p.rooms} rooms</span>${pill(p.occ+'%',p.occ>=85?'pg':'pa')}</div></div>`).join('')}
+      </div>
+    </div>`).join('');
+  }
+
+  if(id==='students') return `
+    <div class="ptitle">Students</div><div class="psub">All students with lease, funding and payment status</div>
+    <div class="g4 mb20">${kpi('Total',STUDENTS.length,null,null,'var(--blue)')}${kpi('NSFAS',nsfas,'65%',null,'var(--green)')}${kpi('Applications','14','Awaiting review',null,'var(--amber)')}${kpi('Renewals due','23','Next 30 days',null,'var(--red)')}</div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">🎓 All students</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">+ Add student</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Property</th><th>Room</th><th>Funding</th><th>NSFAS No.</th><th>Lease period</th><th>Rent</th><th>Payment</th></tr></thead><tbody>
+        ${STUDENTS.map(s=>{const mo=monthsLeft(s.le);const prop=PROPS.find(p=>p.id===s.prop);return `<tr><td><div style="font-weight:700">${s.name}</div></td><td style="font-size:12px;color:var(--text2)">${prop?.name||''}</td><td style="font-weight:700">${s.room}</td><td>${pill(s.fund,s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn')}</td><td style="font-size:12px;color:var(--text3)">${s.nsfas||'—'}</td><td><div style="font-size:12px;color:var(--text2)">${s.ls} → ${s.le}</div><div style="font-size:11px;font-weight:600;color:${mo<3?'var(--red)':mo<6?'var(--amber)':'var(--green)'}">${mo>0?mo+'mo left':'Expired'}</div></td><td style="font-weight:700">R ${s.rent.toLocaleString()}</td><td>${pill(s.paid?'Paid':'Overdue',s.paid?'pg':'pr')}</td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if(id==='payments') return `
+    <div class="ptitle">Payments & NSFAS</div><div class="psub">Track all student payments, NSFAS allocations and outstanding amounts</div>
+    <div class="g4 mb20">${kpi('NSFAS Students',nsfas,'65% of total','+R 142k this month','var(--green)')}${kpi('Private Students',STUDENTS.filter(s=>s.fund==='private').length,null,null,'var(--blue)')}${kpi('NSFAS Received MTD','R 142k','On track','+5.1% vs target','var(--gold)')}${kpi('Outstanding','R '+(unpaid*3800).toLocaleString(),unpaid+' students',null,'var(--red)')}</div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">💳 Payment tracker</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">+ Record payment</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Student</th><th>Property</th><th>Room</th><th>Funding</th><th>NSFAS No.</th><th>Monthly rent</th><th>Last payment</th><th>Status</th></tr></thead><tbody>
+        ${STUDENTS.map(s=>{const prop=PROPS.find(p=>p.id===s.prop);return `<tr><td style="font-weight:700">${s.name}</td><td style="font-size:12px;color:var(--text2)">${prop?.name||''}</td><td style="font-weight:700">${s.room}</td><td>${pill(s.fund.toUpperCase(),s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn')}</td><td style="font-size:12px;color:var(--text3)">${s.nsfas||'—'}</td><td style="font-weight:700">R ${s.rent.toLocaleString()}</td><td style="font-size:12px;color:var(--text2)">${s.paid?'1 Jun 2025':'Pending'}</td><td>${pill(s.paid?'Paid':'Overdue',s.paid?'pg':'pr')}</td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if(id==='maintenance') return `
+    <div class="ptitle">Maintenance</div><div class="psub">Track and resolve all property maintenance issues</div>
+    <div class="g4 mb20">${kpi('Open',MAINT.filter(m=>m.status!=='fixed').length,null,null,'var(--red)')}${kpi('Critical/Urgent',MAINT.filter(m=>['critical','urgent'].includes(m.urg)&&m.status!=='fixed').length,null,null,'var(--red)')}${kpi('In Progress',MAINT.filter(m=>m.status==='in_progress').length,null,null,'var(--amber)')}${kpi('Fixed This Week',MAINT.filter(m=>m.status==='fixed').length,null,null,'var(--green)')}</div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">🔧 All issues</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">+ Log issue</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Issue</th><th>Property</th><th>Room</th><th>Reported by</th><th>Date</th><th>Urgency</th><th>Status</th></tr></thead><tbody>
+        ${MAINT.map(m=>`<tr><td><div style="font-weight:700">${m.issue}</div><div style="font-size:11px;color:var(--text3)">${m.action}</div></td><td style="font-size:12px;color:var(--text2)">${propName(m.prop)}</td><td style="font-weight:700">${m.room}</td><td style="font-size:12px;color:var(--text2)">${m.by}</td><td style="font-size:12px;color:var(--text3)">${m.date}</td><td>${pill(m.urg,m.urg==='critical'?'pr':m.urg==='urgent'?'pa':'pn')}</td><td>${pill(m.status.replace('_',' '),m.status==='fixed'?'pg':m.status==='in_progress'?'pa':'pr')}</td></tr>`).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if(id==='electricity') return `
+    <div class="ptitle">Electricity Tracker</div><div class="psub">Monitor prepaid electricity units per room</div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">⚡ Suburban House 4 — Room tracker</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">+ Top up room</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Room</th><th>Student</th><th>Units remaining</th><th>Last topped up</th><th>Status</th><th></th></tr></thead><tbody>
+        ${ELEC.map(e=>`<tr><td style="font-weight:800">${e.room}</td><td style="color:var(--text2)">${e.student}</td><td><div style="display:flex;align-items:center;gap:9px"><div style="width:68px;height:5px;background:var(--borderL);border-radius:3px;overflow:hidden"><div style="width:${Math.min(e.units,100)}%;height:100%;background:${e.units<=20?'var(--red)':e.units<=50?'var(--amber)':'var(--green)'};border-radius:3px"></div></div><span style="font-weight:800;color:${e.units<=20?'var(--red)':e.units<=50?'var(--amber)':'var(--navy)'}">${e.units} units</span></div></td><td style="font-size:12px;color:var(--text3)">${e.last}</td><td>${pill(e.units<=20?'Critical':e.units<=50?'Moderate':'Good',e.units<=20?'pr':e.units<=50?'pa':'pg')}</td><td><button class="btn ${e.units<=20?'btn-orange':'btn-ghost'}" style="font-size:11px;padding:5px 11px">Top up</button></td></tr>`).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if(id==='hkreports'){
+    if(r==='hk') return `
+      <div class="ptitle">Submit Weekly Report</div>
+      <div class="psub">Suburban House 4 · Report goes directly to your Portfolio Manager · Due Sunday 17:00</div>
+      <div class="card" style="padding:20px;margin-bottom:12px">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--navy);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">📋 General information</div>
+        <div class="g2" style="margin-bottom:12px"><div><label class="lbl">Property</label><input class="inp" value="Suburban House 4" readonly style="background:var(--bg)"></div><div><label class="lbl">Report date</label><input class="inp" type="date" value="${new Date().toISOString().split('T')[0]}"></div></div>
+        <div class="g2"><div><label class="lbl">Reporting period</label><input class="inp" placeholder="e.g. 2 – 8 Jun 2025"></div><div><label class="lbl">HK name</label><input class="inp" value="Housekeeper" readonly style="background:var(--bg)"></div></div>
+      </div>
+      <div class="card" style="padding:20px;margin-bottom:12px">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--navy);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">🔧 Corrective maintenance / repairs</div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Room</th><th>Issue identified</th><th>Action taken</th><th>Status</th></tr></thead>
+        <tbody id="repair-body"><tr><td><input class="inp" style="padding:7px 10px" placeholder="e.g. 204"></td><td><input class="inp" style="padding:7px 10px" placeholder="Describe the issue"></td><td><input class="inp" style="padding:7px 10px" placeholder="Action taken"></td><td><select class="inp" style="padding:7px 10px"><option>Pending</option><option>In progress</option><option>Fixed</option></select></td></tr></tbody></table></div>
+        <button onclick="addRepair()" style="width:100%;margin-top:9px;padding:8px;border:1.5px dashed var(--border);border-radius:9px;background:transparent;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;font-family:inherit" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">+ Add repair row</button>
+      </div>
+      ${[['🧹 Cleaning',['Students taking out trash regularly?','Communal areas clean after use?','Bathrooms/showers free from mould?','Students keeping personal spaces tidy?','No dirty dishes in shared areas?','Communal areas free from unpleasant odours?']],['🔒 Safety',['Biometric gate functioning properly?','Lockers functioning properly?','CCTV cameras functioning properly?','Panic button functioning properly?','Alarm system functioning properly?','All access control working as expected?']],['🌿 Yard',['Yard clean and well maintained?','Does the grass need to be cut?','Do trees need trimming?','Pathways free from litter?','Outdoor bins in good condition?']]].map(([title,qs])=>`
+      <div class="card" style="padding:20px;margin-bottom:12px">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--navy);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">${title}</div>
+        ${qs.map(q=>`<div class="yn-row"><span>${q}</span><div style="display:flex;gap:5px"><button class="yn-btn y" data-key="${q}" data-val="y">Yes</button><button class="yn-btn n" data-key="${q}" data-val="n">No</button></div></div>`).join('')}
+      </div>`).join('')}
+      <div class="card" style="padding:20px;margin-bottom:12px">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--navy);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">📝 Additional notes & sign off</div>
+        <div style="margin-bottom:12px"><label class="lbl">Additional notes</label><textarea class="inp" rows="3" placeholder="Any observations, incidents or student concerns this week…"></textarea></div>
+        <div style="margin-bottom:14px"><label class="lbl">Conclusion</label><textarea class="inp" rows="2" placeholder="Overall summary of the property's condition this week…"></textarea></div>
+        <div class="g2"><div><label class="lbl">HK signature (type full name)</label><input class="inp" placeholder="Type your full name"></div><div><label class="lbl">Date signed</label><input class="inp" type="date" value="${new Date().toISOString().split('T')[0]}"></div></div>
+        <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-outline" style="flex:1">Save draft</button><button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700">Submit to Portfolio Manager →</button></div>
+      </div>`;
+
+    return `
+      <div class="ptitle">HK Reports</div><div class="psub">Track weekly report submissions and generate owner reports</div>
+      <div class="card">
+        <div class="card-hdr"><div class="ctitle">📋 Submissions this week</div><div style="display:flex;gap:8px"><button class="btn btn-ghost">🔔 Send reminders</button><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">📄 Generate owner reports</button></div></div>
+        ${REPORTS.map(rp=>`<div style="display:flex;align-items:center;gap:11px;padding:13px 18px;border-bottom:1px solid var(--borderL)">
+          <div style="width:34px;height:34px;border-radius:9px;background:${rp.status==='submitted'?'var(--greenL)':rp.status==='overdue'?'var(--redL)':'var(--amberL)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${rp.status==='submitted'?'✅':rp.status==='overdue'?'❌':'⏳'}</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--navy)">${rp.name}</div><div style="font-size:11px;color:var(--text3)">HK: ${rp.hk} · ${rp.sub||'Not yet submitted'} · Submits to: Portfolio Manager</div></div>
+          ${pill(rp.status,rp.status==='submitted'?'pg':rp.status==='overdue'?'pr':'pa')}
+          ${rp.status==='submitted'?`<div style="display:flex;gap:6px"><button class="btn btn-ghost" style="font-size:11px;padding:5px 10px">🖨 Print</button><button class="btn btn-ghost" style="font-size:11px;padding:5px 10px">✉ Send to owner</button></div>`:''}
+        </div>`).join('')}
+      </div>`;
+  }
+
+  if(id==='leases') return `
+    <div class="ptitle">Leases</div><div class="psub">Digital lease management with QR code application system</div>
+    <div style="background:var(--orangeL);border:1.5px solid rgba(232,89,10,.2);border-radius:14px;padding:18px;margin-bottom:18px;display:flex;align-items:center;gap:14px">
+      <div style="font-size:30px">📱</div>
+      <div style="flex:1"><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--navy)">QR Lease System</div><div style="font-size:13px;color:var(--text2);margin-top:4px;line-height:1.65">Generate a QR code per property → Print and place at entrance → Students scan → Fill form online → Application arrives on your dashboard instantly → Review, approve, print or send digitally.</div></div>
+      <button class="btn btn-orange" onclick="openQR()">📱 Generate QR</button>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">📄 Active leases</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px">+ Add lease</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Student</th><th>ID No.</th><th>Property</th><th>Room</th><th>Lease period</th><th>Funding</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+        ${STUDENTS.map(s=>{const prop=PROPS.find(p=>p.id===s.prop);const mo=monthsLeft(s.le);return `<tr><td style="font-weight:700">${s.name}</td><td style="font-size:12px;color:var(--text3)">${s.idno}</td><td style="font-size:12px;color:var(--text2)">${prop?.name||''}</td><td style="font-weight:700">${s.room}</td><td><div style="font-size:12px;color:var(--text2)">${s.ls} → ${s.le}</div><div style="font-size:11px;font-weight:600;color:${mo<3?'var(--red)':mo<6?'var(--amber)':'var(--green)'}">${mo>0?mo+'mo left':'Expired'}</div></td><td>${pill(s.fund,s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn')}</td><td>${pill('Active','pg')}</td><td><div style="display:flex;gap:6px"><button class="btn btn-ghost" style="font-size:11px;padding:4px 9px">🖨 Print</button><button class="btn btn-ghost" style="font-size:11px;padding:4px 9px">✉ Send</button></div></td></tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if(id==='portal') return `
+    <div class="ptitle">Student Portal</div><div class="psub">What students see when searching for Suburban Digs accommodation</div>
+    <div style="border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--sh3)">
+      <div style="background:var(--navy);padding:18px 22px;display:flex;align-items:center;justify-content:space-between">
+        ${logo(true,false)}
+        <div style="display:flex;gap:10px"><button class="btn btn-ghost" style="color:rgba(255,255,255,.55);border-color:rgba(255,255,255,.14);font-size:12px">Sign in</button><button class="btn btn-orange" style="font-size:12px;padding:8px 18px;font-family:'Sora',sans-serif;font-weight:700">Apply now</button></div>
+      </div>
+      <div style="padding:12px 16px;background:#EEF2FF;display:flex;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+        <select class="inp" style="width:auto;font-size:12px;padding:7px 12px"><option>All areas — Pretoria</option><option>Hatfield</option><option>Lynnwood</option><option>Menlyn</option></select>
+        <select class="inp" style="width:auto;font-size:12px;padding:7px 12px"><option>Any price</option><option>Under R3,000</option><option>R3,000–R5,000</option></select>
+        <select class="inp" style="width:auto;font-size:12px;padding:7px 12px"><option>NSFAS accredited</option><option>Private only</option></select>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:16px;background:var(--bg)">
+        ${PROPS.slice(0,3).map(p=>`<div style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--sh2);transition:all .2s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='var(--sh3)'" onmouseout="this.style.transform='';this.style.boxShadow='var(--sh2)'">
+          <div style="height:88px;background:linear-gradient(135deg,var(--navy),var(--navy2));display:flex;align-items:center;justify-content:center;font-size:34px">🏠</div>
+          <div style="padding:14px">
+            <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--navy)">${p.name}</div>
+            <div style="font-size:11px;color:var(--text3);margin:3px 0 8px">${p.area}, ${p.city} · ${p.rooms-p.occ} room${p.rooms-p.occ!==1?'s':''} available</div>
+            <div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--orange)">R ${p.rent.toLocaleString()}<span style="font-size:12px;color:var(--text3);font-weight:400">/month</span></div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0 10px">${['Wi-Fi','NSFAS','No alcohol','Security','24/7'].map(f=>`<span style="font-size:10px;background:var(--bg2);color:var(--text2);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${f}</span>`).join('')}</div>
+            <button style="width:100%;background:var(--navy);color:#fff;border:none;padding:9px;border-radius:9px;font-size:13px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--orange)'" onmouseout="this.style.background='var(--navy)'">Apply now</button>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+
+  return `<div class="ptitle">${viewTitles[id]||'View'}</div><div class="psub">Coming soon.</div>`;
+}
+
+// ── REPAIR ROW ──
+function addRepair(){
+  const tb=document.getElementById('repair-body');
+  if(!tb)return;
+  const tr=document.createElement('tr');
+  tr.innerHTML='<td><input class="inp" style="padding:7px 10px" placeholder="Room"></td><td><input class="inp" style="padding:7px 10px" placeholder="Issue"></td><td><input class="inp" style="padding:7px 10px" placeholder="Action"></td><td><select class="inp" style="padding:7px 10px"><option>Pending</option><option>In progress</option><option>Fixed</option></select></td>';
+  tb.appendChild(tr);
+}
+
+// ── NOTIFICATIONS ──
+function updateNotifBadge(){
+  const u=NOTIFS.filter(n=>n.unread).length;
+  document.getElementById('notif-count').textContent=u;
+  document.getElementById('notif-count').style.display=u>0?'':'none';
+  document.getElementById('notif-pill').textContent=u+' new';
+  document.getElementById('tb-notif-dot').style.display=u>0?'':'none';
+}
+function renderNotifs(){
+  const list=document.getElementById('notif-list');
+  list.innerHTML=NOTIFS.map(n=>`
+    <div onclick="markRead(${n.id})" style="display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--borderL);cursor:pointer;background:${n.unread?'var(--orangeL)':'#fff'};position:relative;transition:background .15s" onmouseover="this.style.background='${n.unread?'#FDE8DC':'var(--bg)'}'" onmouseout="this.style.background='${n.unread?'var(--orangeL)':'#fff'}'">
+      ${n.unread?'<div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange);border-radius:0 2px 2px 0"></div>':''}
+      <div style="width:32px;height:32px;border-radius:8px;background:${n.type==='maintenance'?'var(--redL)':n.type==='electricity'?'var(--amberL)':n.type==='payment'?'var(--goldL)':'var(--blueL)'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${n.type==='maintenance'?'🔧':n.type==='electricity'?'⚡':n.type==='payment'?'💰':n.type==='lease'?'📄':'📋'}</div>
+      <div style="flex:1"><div style="font-size:12px;color:var(--navy);line-height:1.5;font-weight:${n.unread?600:400}">${n.msg}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${n.time}</div></div>
+    </div>`).join('');
+  updateNotifBadge();
+}
+function toggleNotif(){
+  document.getElementById('notif-panel').classList.toggle('open');
+}
+function markRead(id){NOTIFS=NOTIFS.map(n=>n.id===id?{...n,unread:false}:n);renderNotifs();}
+function markAllRead(){NOTIFS=NOTIFS.map(n=>({...n,unread:false}));renderNotifs();}
+
+// ── AI ──
+function toggleAI(){
+  document.getElementById('ai-panel').classList.toggle('open');
+}
+async function aiSend(preset){
+  const input=document.getElementById('ai-input');
+  const text=preset||input.value.trim();
+  if(!text)return;
+  input.value='';
+  const msgs=document.getElementById('ai-msgs');
+  msgs.innerHTML+=`<div style="max-width:88%;padding:9px 13px;border-radius:11px 11px 2px 11px;font-size:12px;line-height:1.6;align-self:flex-end;background:var(--navy);color:#fff;margin-left:auto">${text}</div>`;
+  msgs.innerHTML+=`<div id="ai-typing" style="display:flex;gap:4px;padding:9px 13px;background:var(--bg);border-radius:11px 11px 11px 2px;width:fit-content"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>`;
+  msgs.scrollTop=9999;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        system:'You are NestManager AI, a professional student accommodation assistant for portfolio managers at Suburban Digs in South Africa. Help with writing owner reports, drafting professional emails, summarising maintenance issues, and tracking student payments. Be concise and use South African English.',
+        messages:[{role:'user',content:text}]
+      })
+    });
+    const data=await res.json();
+    document.getElementById('ai-typing')?.remove();
+    const reply=data.content?.[0]?.text||'Sorry, I could not process that.';
+    msgs.innerHTML+=`<div style="max-width:88%;padding:9px 13px;border-radius:11px 11px 11px 2px;font-size:12px;line-height:1.6;background:var(--bg);color:var(--text)">${reply.replace(/\n/g,'<br>')}</div>`;
+  }catch{
+    document.getElementById('ai-typing')?.remove();
+    msgs.innerHTML+=`<div style="max-width:88%;padding:9px 13px;border-radius:11px 11px 11px 2px;font-size:12px;line-height:1.6;background:var(--bg);color:var(--text)">⚠️ AI requires an API key configured in settings. The assistant is ready once connected.</div>`;
+  }
+  msgs.scrollTop=9999;
+}
+
+// ── QR MODAL ──
+let qrStep='qr';
+function openQR(){
+  qrStep='qr';
+  renderQR();
+  document.getElementById('qr-modal').classList.add('open');
+}
+function closeQR(){document.getElementById('qr-modal').classList.remove('open');}
+function renderQR(){
+  const c=document.getElementById('qr-content');
+  if(qrStep==='qr') c.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">QR Lease Code</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Suburban House 4</div></div>
+      <button onclick="closeQR()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    <div style="background:var(--bg);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;margin-bottom:18px">
+      <svg width="160" height="160" viewBox="0 0 160 160" style="display:block;margin:0 auto 10px">
+        <rect width="160" height="160" fill="white"/>
+        <rect x="10" y="10" width="54" height="54" fill="none" stroke="#0F1D35" stroke-width="5" rx="3"/>
+        <rect x="96" y="10" width="54" height="54" fill="none" stroke="#0F1D35" stroke-width="5" rx="3"/>
+        <rect x="10" y="96" width="54" height="54" fill="none" stroke="#0F1D35" stroke-width="5" rx="3"/>
+        <rect x="22" y="22" width="30" height="30" fill="#0F1D35" rx="2"/>
+        <rect x="108" y="22" width="30" height="30" fill="#0F1D35" rx="2"/>
+        <rect x="22" y="108" width="30" height="30" fill="#0F1D35" rx="2"/>
+        <rect x="70" y="10" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="80" y="10" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="70" y="20" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="90" y="20" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="70" y="30" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="80" y="30" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="70" y="40" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="10" y="70" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="20" y="70" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="30" y="70" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="50" y="70" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="60" y="70" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="110" y="70" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="130" y="70" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="150" y="70" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="110" y="80" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="120" y="80" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="140" y="80" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="110" y="90" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="130" y="90" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="110" y="100" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="120" y="110" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="140" y="110" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="150" y="110" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="110" y="120" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="130" y="120" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="150" y="120" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="110" y="130" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="120" y="130" width="8" height="8" fill="#0F1D35" rx="1"/><rect x="150" y="140" width="8" height="8" fill="#0F1D35" rx="1"/>
+        <rect x="64" y="64" width="32" height="32" fill="#E8590A" rx="5"/>
+        <text x="80" y="84" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold" font-size="16">N</text>
+      </svg>
+      <div style="font-size:14px;font-weight:700;color:var(--navy)">Scan to apply for lease</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:3px">Suburban House 4 · NestManager</div>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.65;text-align:center">Print and place at the property entrance. Students scan with their phone, fill in the lease form, and submit. It appears on your dashboard instantly.</p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1" onclick="window.print()">🖨 Print QR</button>
+      <button class="btn btn-orange" style="flex:1" onclick="qrStep='form';renderQR()">Preview form →</button>
+    </div>`;
+
+  else if(qrStep==='form') c.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      ${logo(false,true)}
+      <button onclick="qrStep='qr';renderQR()" class="btn btn-ghost">← Back</button>
+    </div>
+    <div style="background:var(--orangeL);border:1px solid rgba(232,89,10,.2);border-radius:10px;padding:13px;margin-bottom:18px">
+      <div style="font-size:13px;font-weight:700;color:var(--orange)">📍 Suburban House 4</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:3px">Fill in this form to apply for student accommodation. Your application goes directly to the portfolio manager.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="g2"><div><label class="lbl">Full name</label><input class="inp" placeholder="Sipho Khumalo"></div><div><label class="lbl">ID number</label><input class="inp" placeholder="0001015800080"></div></div>
+      <div class="g2"><div><label class="lbl">Phone</label><input class="inp" placeholder="071 234 5678"></div><div><label class="lbl">Preferred room</label><input class="inp" placeholder="e.g. 201"></div></div>
+      <div><label class="lbl">Funding type</label><select class="inp"><option value="nsfas">NSFAS</option><option value="private">Private (self-funded)</option><option value="bursary">Bursary</option></select></div>
+      <div class="g2"><div><label class="lbl">Lease start</label><input class="inp" type="date"></div><div><label class="lbl">Lease end</label><input class="inp" type="date"></div></div>
+      <div style="background:var(--bg);border-radius:9px;padding:13px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px">HOUSE RULES — I AGREE TO:</div>
+        ${['No alcohol on the premises','No visitors after 22:00','Keep communal areas clean','Report maintenance within 24 hours'].map(r=>`<div style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);margin-bottom:5px">✓ ${r}</div>`).join('')}
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--orange)"> I agree to the house rules and NestManager lease terms</label>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeQR()">Cancel</button>
+      <button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700" onclick="qrStep='success';renderQR()">Submit application</button>
+    </div>`;
+
+  else c.innerHTML=`
+    <div style="text-align:center">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--greenL);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:28px">✓</div>
+      <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:8px">Application submitted!</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:22px">Your lease application for <strong>Suburban House 4</strong> has been sent to the portfolio manager. You'll receive confirmation within 24 hours.</p>
+      <button class="btn btn-navy" style="width:100%;font-family:'Sora',sans-serif;font-weight:700" onclick="closeQR()">Close</button>
+    </div>`;
+}
+
+// Close modal on bg click
+document.getElementById('qr-modal').addEventListener('click',function(e){if(e.target===this)closeQR();});
+</script>
+</body>
+</html>
