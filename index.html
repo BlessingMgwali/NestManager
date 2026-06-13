@@ -934,3 +934,696 @@ document.getElementById('qr-modal').addEventListener('click',function(e){if(e.ta
 </script>
 </body>
 </html>
+<!-- PATCH: Interactive features injected -->
+<script>
+// ── STATE (live in-memory database for demo) ──
+let STATE = {
+  properties: [
+    {id:'p1',name:'Suburban House 4',area:'Hatfield',city:'Pretoria',rooms:12,occ:11,pm:'Emihle Bantshi',hk:'Thabo M.',ra:null,rent:3800,nsfas:true},
+    {id:'p2',name:'Digs on Lynnwood',area:'Lynnwood',city:'Pretoria',rooms:20,occ:17,pm:'Thando Ngwadla',hk:'Nomsa D.',ra:'Lunathi S.',rent:4200,nsfas:true},
+    {id:'p3',name:'Menlyn Student Lodge',area:'Menlyn',city:'Pretoria',rooms:30,occ:28,pm:'Shakira Adams',hk:'Lebo T.',ra:'Bonolo M.',rent:4800,nsfas:true},
+    {id:'p4',name:'Brooklyn Residence',area:'Brooklyn',city:'Pretoria',rooms:18,occ:14,pm:'Lungile Mhlongo',hk:'Sipho N.',ra:'Abigail M.',rent:3800,nsfas:true},
+    {id:'p5',name:'Arcadia Heights',area:'Arcadia',city:'Pretoria',rooms:25,occ:18,pm:'Keletjo Kekana',hk:'Zanele M.',ra:'Sindy M.',rent:4200,nsfas:true},
+  ],
+  students: [
+    {id:'s1',name:'Thandeka Mokoena',room:'101',prop:'p1',fund:'nsfas',nsfas:'NSF-2024-001',rent:3800,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0001015800080',status:'active'},
+    {id:'s2',name:'Sipho Dlamini',room:'102',prop:'p1',fund:'private',nsfas:null,rent:3800,ls:'2025-01-15',le:'2025-12-31',paid:true,idno:'9908125500086',status:'active'},
+    {id:'s3',name:'Nomvula Zulu',room:'103',prop:'p1',fund:'nsfas',nsfas:'NSF-2024-003',rent:3800,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0204306700083',status:'active'},
+    {id:'s4',name:'Kagiso Molefe',room:'104',prop:'p1',fund:'private',nsfas:null,rent:3800,ls:'2025-02-01',le:'2025-10-31',paid:false,idno:'0109125800081',status:'active'},
+    {id:'s5',name:'Lerato Nkosi',room:'105',prop:'p1',fund:'nsfas',nsfas:'NSF-2024-005',rent:4200,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0302286100087',status:'active'},
+    {id:'s6',name:'Bongani Khumalo',room:'201',prop:'p2',fund:'bursary',nsfas:null,rent:4200,ls:'2025-01-20',le:'2025-12-20',paid:true,idno:'0205125900084',status:'active'},
+    {id:'s7',name:'Precious Mahlangu',room:'202',prop:'p2',fund:'nsfas',nsfas:'NSF-2024-007',rent:4200,ls:'2025-02-10',le:'2025-11-30',paid:false,idno:'0107146200082',status:'active'},
+  ],
+  applications: [],
+  maintenance: [
+    {id:'m1',prop:'p1',room:'204',issue:'Geyser burst',action:'Plumber called',urg:'critical',status:'open',by:'HK Thabo',date:'2025-06-07'},
+    {id:'m2',prop:'p2',room:'Main gate',issue:'Biometric gate not working',action:'Technician booked',urg:'urgent',status:'in_progress',by:'HK Nomsa',date:'2025-06-06'},
+    {id:'m3',prop:'p3',room:'Floor 2',issue:'Wi-Fi down',action:'ISP contacted',urg:'normal',status:'in_progress',by:'HK Lebo',date:'2025-06-07'},
+    {id:'m4',prop:'p4',room:'108',issue:'Broken window',action:'Glazier scheduled',urg:'normal',status:'pending',by:'HK Sipho',date:'2025-06-05'},
+    {id:'m5',prop:'p1',room:'301',issue:'Leaking tap',action:'Fixed by plumber',urg:'normal',status:'fixed',by:'HK Thabo',date:'2025-06-04'},
+  ],
+  electricity: [
+    {id:'e1',prop:'p1',room:'101',student:'Thandeka M.',units:12,last:'2025-05-15'},
+    {id:'e2',prop:'p1',room:'102',student:'Sipho D.',units:50,last:'2025-05-20'},
+    {id:'e3',prop:'p1',room:'103',student:'Nomvula Z.',units:85,last:'2025-05-25'},
+    {id:'e4',prop:'p1',room:'104',student:'Kagiso M.',units:15,last:'2025-05-10'},
+    {id:'e5',prop:'p1',room:'105',student:'Lerato N.',units:70,last:'2025-05-28'},
+  ],
+  notifications: [
+    {id:1,type:'maintenance',msg:'🔧 Urgent: Geyser burst Room 204 — Suburban House 4.',time:'2 min ago',unread:true},
+    {id:2,type:'maintenance',msg:'🔒 Biometric gate not working at Digs on Lynnwood.',time:'1 hour ago',unread:true},
+    {id:3,type:'electricity',msg:'⚡ Low electricity: Room 101 (12 units) — Suburban House 4.',time:'3 hours ago',unread:true},
+    {id:4,type:'hk',msg:'📋 HK report overdue: Brooklyn Residence — Sipho N.',time:'5 hours ago',unread:true},
+    {id:5,type:'payment',msg:'💰 NSFAS confirmed: R3,800 for Thandeka Mokoena Room 101.',time:'Yesterday',unread:true},
+    {id:6,type:'lease',msg:'📄 New lease QR application — waiting for review.',time:'2 hours ago',unread:true},
+  ]
+};
+
+// ── TOAST NOTIFICATION ──
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:${type==='success'?'var(--green)':type==='error'?'var(--red)':'var(--navy)'};color:#fff;padding:12px 24px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;box-shadow:var(--sh4);animation:fadeUp .3s ease;white-space:nowrap`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── MODAL SYSTEM ──
+function openModal(html) {
+  const m = document.getElementById('qr-modal');
+  document.getElementById('qr-content').innerHTML = html;
+  m.classList.add('open');
+}
+function closeModal() {
+  document.getElementById('qr-modal').classList.remove('open');
+}
+
+// ── ADD PROPERTY ──
+function showAddProperty() {
+  openModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">Add New Property</div>
+      <button onclick="closeModal()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="g2">
+        <div><label class="lbl">Property name</label><input class="inp" id="np-name" placeholder="e.g. Sunnyside Residence"></div>
+        <div><label class="lbl">Area / suburb</label><input class="inp" id="np-area" placeholder="e.g. Sunnyside"></div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">City</label><input class="inp" id="np-city" placeholder="Pretoria" value="Pretoria"></div>
+        <div><label class="lbl">Total rooms</label><input class="inp" type="number" id="np-rooms" placeholder="20" min="1"></div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">Monthly rent (R)</label><input class="inp" type="number" id="np-rent" placeholder="3800"></div>
+        <div><label class="lbl">Portfolio manager</label>
+          <select class="inp" id="np-pm">
+            ${['Emihle Bantshi','Thando Ngwadla','Thammie Mafuleka','Lungile Mhlongo','Keletjo Kekana','Shakira Adams','Thando Khanya','Phumlani Mabuza'].map(n=>`<option>${n}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">HK name</label><input class="inp" id="np-hk" placeholder="e.g. Themba N."></div>
+        <div><label class="lbl">RA name (optional)</label><input class="inp" id="np-ra" placeholder="e.g. Bonolo M."></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px;background:var(--bg);border-radius:9px;border:1px solid var(--border)">
+        <input type="checkbox" id="np-nsfas" checked style="width:15px;height:15px;accent-color:var(--orange)">
+        <label for="np-nsfas" style="font-size:13px;color:var(--text2);cursor:pointer">NSFAS accredited property</label>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700" onclick="saveProperty()">Add property</button>
+    </div>
+  `);
+}
+
+function saveProperty() {
+  const name = document.getElementById('np-name').value.trim();
+  const area = document.getElementById('np-area').value.trim();
+  const city = document.getElementById('np-city').value.trim();
+  const rooms = parseInt(document.getElementById('np-rooms').value) || 0;
+  const rent = parseInt(document.getElementById('np-rent').value) || 0;
+  const pm = document.getElementById('np-pm').value;
+  const hk = document.getElementById('np-hk').value.trim();
+  const ra = document.getElementById('np-ra').value.trim();
+  const nsfas = document.getElementById('np-nsfas').checked;
+
+  if (!name || !area || !rooms || !rent) {
+    toast('Please fill in all required fields', 'error'); return;
+  }
+  const id = 'p' + Date.now();
+  STATE.properties.push({id, name, area, city, rooms, occ: 0, pm, hk: hk||'TBA', ra: ra||null, rent, nsfas});
+  // Add notification
+  STATE.notifications.unshift({id: Date.now(), type:'general', msg:`🏠 New property added: ${name} — ${area}.`, time:'Just now', unread:true});
+  NOTIFS = STATE.notifications;
+  closeModal();
+  toast(`✅ ${name} added successfully!`);
+  showView('properties');
+}
+
+// ── DELETE PROPERTY ──
+function confirmDeleteProperty(id) {
+  const prop = STATE.properties.find(p => p.id === id);
+  if (!prop) return;
+  openModal(`
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--navy);margin-bottom:10px">Delete property?</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px">Are you sure you want to delete <strong>${prop.name}</strong>? This will also remove all associated student records and reports. This cannot be undone.</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+        <button class="btn" style="flex:1;background:var(--red);color:#fff;font-family:'Sora',sans-serif;font-weight:700" onclick="deleteProperty('${id}')">Yes, delete</button>
+      </div>
+    </div>
+  `);
+}
+
+function deleteProperty(id) {
+  const prop = STATE.properties.find(p => p.id === id);
+  STATE.properties = STATE.properties.filter(p => p.id !== id);
+  STATE.students = STATE.students.filter(s => s.prop !== id);
+  STATE.notifications.unshift({id: Date.now(), type:'general', msg:`🗑️ Property deleted: ${prop?.name}.`, time:'Just now', unread:false});
+  NOTIFS = STATE.notifications;
+  closeModal();
+  toast(`🗑️ ${prop?.name} deleted`, 'error');
+  showView('properties');
+}
+
+// ── ADD STUDENT ──
+function showAddStudent() {
+  openModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">Add New Student</div>
+      <button onclick="closeModal()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="g2">
+        <div><label class="lbl">Full name</label><input class="inp" id="ns-name" placeholder="Sipho Khumalo"></div>
+        <div><label class="lbl">ID number</label><input class="inp" id="ns-id" placeholder="0001015800080"></div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">Property</label>
+          <select class="inp" id="ns-prop">
+            ${STATE.properties.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Room number</label><input class="inp" id="ns-room" placeholder="e.g. 201"></div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">Funding type</label>
+          <select class="inp" id="ns-fund">
+            <option value="nsfas">NSFAS</option>
+            <option value="private">Private</option>
+            <option value="bursary">Bursary</option>
+          </select>
+        </div>
+        <div><label class="lbl">NSFAS number</label><input class="inp" id="ns-nsfas" placeholder="NSF-2025-XXXXXX"></div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">Monthly rent (R)</label><input class="inp" type="number" id="ns-rent" placeholder="3800"></div>
+        <div><label class="lbl">Payment status</label>
+          <select class="inp" id="ns-paid">
+            <option value="true">Paid</option>
+            <option value="false">Overdue</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2">
+        <div><label class="lbl">Lease start</label><input class="inp" type="date" id="ns-ls"></div>
+        <div><label class="lbl">Lease end</label><input class="inp" type="date" id="ns-le"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700" onclick="saveStudent()">Add student</button>
+    </div>
+  `);
+}
+
+function saveStudent() {
+  const name = document.getElementById('ns-name').value.trim();
+  const idno = document.getElementById('ns-id').value.trim();
+  const prop = document.getElementById('ns-prop').value;
+  const room = document.getElementById('ns-room').value.trim();
+  const fund = document.getElementById('ns-fund').value;
+  const nsfas = document.getElementById('ns-nsfas').value.trim();
+  const rent = parseInt(document.getElementById('ns-rent').value) || 3800;
+  const paid = document.getElementById('ns-paid').value === 'true';
+  const ls = document.getElementById('ns-ls').value;
+  const le = document.getElementById('ns-le').value;
+
+  if (!name || !room || !prop) { toast('Please fill in all required fields', 'error'); return; }
+
+  const id = 's' + Date.now();
+  STATE.students.push({id, name, room, prop, fund, nsfas: nsfas||null, rent, paid, ls: ls||'2025-01-01', le: le||'2025-12-31', idno: idno||'—', status:'active'});
+
+  // Update occupancy
+  const p = STATE.properties.find(p => p.id === prop);
+  if (p) p.occ = Math.min(p.occ + 1, p.rooms);
+
+  STATE.notifications.unshift({id: Date.now(), type:'general', msg:`🎓 New student added: ${name} — Room ${room}.`, time:'Just now', unread:true});
+  NOTIFS = STATE.notifications;
+  closeModal();
+  toast(`✅ ${name} added successfully!`);
+  showView('students');
+}
+
+// ── DELETE STUDENT ──
+function confirmDeleteStudent(id) {
+  const s = STATE.students.find(s => s.id === id);
+  if (!s) return;
+  openModal(`
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--navy);margin-bottom:10px">Remove student?</div>
+      <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px">Are you sure you want to remove <strong>${s.name}</strong> from Room ${s.room}?</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+        <button class="btn" style="flex:1;background:var(--red);color:#fff;font-family:'Sora',sans-serif;font-weight:700" onclick="deleteStudent('${id}')">Yes, remove</button>
+      </div>
+    </div>
+  `);
+}
+
+function deleteStudent(id) {
+  const s = STATE.students.find(s => s.id === id);
+  const prop = STATE.properties.find(p => p.id === s?.prop);
+  if (prop && prop.occ > 0) prop.occ--;
+  STATE.students = STATE.students.filter(s => s.id !== id);
+  closeModal();
+  toast(`🗑️ ${s?.name} removed`, 'error');
+  showView('students');
+}
+
+// ── ADD MAINTENANCE ──
+function showAddMaintenance() {
+  openModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">Log Maintenance Issue</div>
+      <button onclick="closeModal()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="g2">
+        <div><label class="lbl">Property</label>
+          <select class="inp" id="nm-prop">
+            ${STATE.properties.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+          </select>
+        </div>
+        <div><label class="lbl">Room / location</label><input class="inp" id="nm-room" placeholder="e.g. 204 or Main gate"></div>
+      </div>
+      <div><label class="lbl">Issue description</label><input class="inp" id="nm-issue" placeholder="Describe the maintenance issue"></div>
+      <div><label class="lbl">Action taken</label><input class="inp" id="nm-action" placeholder="What has been done so far?"></div>
+      <div class="g2">
+        <div><label class="lbl">Urgency</label>
+          <select class="inp" id="nm-urg">
+            <option value="normal">Normal</option>
+            <option value="urgent">Urgent</option>
+            <option value="critical">Critical</option>
+          </select>
+        </div>
+        <div><label class="lbl">Reported by</label><input class="inp" id="nm-by" placeholder="e.g. HK Thabo"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700" onclick="saveMaintenance()">Log issue</button>
+    </div>
+  `);
+}
+
+function saveMaintenance() {
+  const prop = document.getElementById('nm-prop').value;
+  const room = document.getElementById('nm-room').value.trim();
+  const issue = document.getElementById('nm-issue').value.trim();
+  const action = document.getElementById('nm-action').value.trim();
+  const urg = document.getElementById('nm-urg').value;
+  const by = document.getElementById('nm-by').value.trim();
+
+  if (!room || !issue) { toast('Please fill in room and issue', 'error'); return; }
+
+  const id = 'm' + Date.now();
+  const today = new Date().toISOString().split('T')[0];
+  STATE.maintenance.unshift({id, prop, room, issue, action: action||'Pending review', urg, status:'open', by: by||'Staff', date: today});
+  MAINT = STATE.maintenance;
+
+  const propName = STATE.properties.find(p=>p.id===prop)?.name||'';
+  STATE.notifications.unshift({id: Date.now(), type:'maintenance', msg:`🔧 New ${urg} issue: ${issue} — ${propName} Room ${room}.`, time:'Just now', unread:true});
+  NOTIFS = STATE.notifications;
+
+  closeModal();
+  toast(`✅ Issue logged: ${issue}`);
+  showView('maintenance');
+}
+
+// ── UPDATE MAINTENANCE STATUS ──
+function updateMaintenanceStatus(id, newStatus) {
+  const m = STATE.maintenance.find(m => m.id === id);
+  if (m) {
+    m.status = newStatus;
+    MAINT = STATE.maintenance;
+    if (newStatus === 'fixed') {
+      STATE.notifications.unshift({id: Date.now(), type:'maintenance', msg:`✅ Issue resolved: ${m.issue} — Room ${m.room}.`, time:'Just now', unread:false});
+      NOTIFS = STATE.notifications;
+    }
+    toast(newStatus === 'fixed' ? '✅ Marked as fixed!' : '🔄 Status updated');
+    showView('maintenance');
+  }
+}
+
+// ── TOP UP ELECTRICITY ──
+function showTopUp(roomId) {
+  const e = STATE.electricity.find(e => e.id === roomId);
+  if (!e) return;
+  openModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">Top Up Electricity</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Room ${e.room} — ${e.student}</div></div>
+      <button onclick="closeModal()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    <div style="background:${e.units<=20?'var(--redL)':'var(--amberL)'};border-radius:10px;padding:14px;margin-bottom:18px;text-align:center">
+      <div style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:${e.units<=20?'var(--red)':'var(--amber)'}">${e.units} units</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">Current balance · Last topped up: ${e.last}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="g2">
+        <div><label class="lbl">Units to add</label><input class="inp" type="number" id="tu-units" placeholder="e.g. 100" min="1"></div>
+        <div><label class="lbl">Amount paid (R)</label><input class="inp" type="number" id="tu-amount" placeholder="e.g. 1000"></div>
+      </div>
+      <div><label class="lbl">Payment method</label>
+        <select class="inp" id="tu-method">
+          <option>EFT / Bank transfer</option>
+          <option>Cash</option>
+          <option>Student paid directly</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700" onclick="saveTopUp('${roomId}')">Confirm top up</button>
+    </div>
+  `);
+}
+
+function saveTopUp(roomId) {
+  const units = parseInt(document.getElementById('tu-units').value) || 0;
+  const amount = parseInt(document.getElementById('tu-amount').value) || 0;
+  if (!units) { toast('Please enter units to add', 'error'); return; }
+  const e = STATE.electricity.find(e => e.id === roomId);
+  if (e) {
+    e.units += units;
+    e.last = new Date().toISOString().split('T')[0];
+    STATE.notifications.unshift({id: Date.now(), type:'electricity', msg:`⚡ Electricity topped up: Room ${e.room} — ${units} units added (R${amount}).`, time:'Just now', unread:false});
+    NOTIFS = STATE.notifications;
+  }
+  closeModal();
+  toast(`⚡ ${units} units added to Room ${e?.room}!`);
+  showView('electricity');
+}
+
+// ── QR APPLICATION (student submits, PM sees it) ──
+function submitQRApplication(form) {
+  const app = {
+    id: 'app' + Date.now(),
+    name: form.name || 'Applicant',
+    idno: form.idno || '—',
+    phone: form.phone || '—',
+    room: form.room || 'TBA',
+    prop: 'p1',
+    propName: 'Suburban House 4',
+    fund: form.fund || 'nsfas',
+    nsfas: form.nsfas || null,
+    ls: form.ls || '',
+    le: form.le || '',
+    status: 'pending',
+    date: new Date().toISOString().split('T')[0],
+    time: 'Just now'
+  };
+  STATE.applications.push(app);
+  STATE.notifications.unshift({
+    id: Date.now(),
+    type: 'lease',
+    msg: `📄 New lease application: ${app.name} for ${app.propName} — awaiting PM review.`,
+    time: 'Just now',
+    unread: true
+  });
+  NOTIFS = STATE.notifications;
+  renderNotifs();
+  updateNotifBadge();
+  return app;
+}
+
+// ── APPLICATIONS VIEW (PM sees all applications) ──
+function showApplications() {
+  const apps = STATE.applications;
+  openModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">Lease Applications</div><div style="font-size:13px;color:var(--text2);margin-top:2px">${apps.length} application${apps.length!==1?'s':''} received via QR</div></div>
+      <button onclick="closeModal()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    ${apps.length === 0 ? `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:40px;margin-bottom:14px">📭</div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px">No applications yet</div>
+        <div style="font-size:13px;color:var(--text2)">Applications submitted via QR code will appear here.</div>
+      </div>` :
+    apps.map(app => `
+      <div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:${app.status==='pending'?'var(--orangeL)':'var(--greenL)'}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--navy)">${app.name}</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">ID: ${app.idno} · Phone: ${app.phone} · Applied: ${app.date}</div>
+          </div>
+          <span class="pill ${app.status==='pending'?'po':'pg'}">${app.status}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:#fff;border-radius:8px;padding:10px"><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase">Property</div><div style="font-size:12px;font-weight:600;color:var(--navy);margin-top:3px">${app.propName}</div></div>
+          <div style="background:#fff;border-radius:8px;padding:10px"><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase">Room requested</div><div style="font-size:12px;font-weight:600;color:var(--navy);margin-top:3px">${app.room}</div></div>
+          <div style="background:#fff;border-radius:8px;padding:10px"><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase">Funding</div><div style="font-size:12px;font-weight:600;color:var(--navy);margin-top:3px">${app.fund.toUpperCase()}</div></div>
+        </div>
+        ${app.status === 'pending' ? `
+        <div style="display:flex;gap:8px">
+          <button class="btn" style="flex:1;background:var(--red);color:#fff;font-size:12px" onclick="rejectApplication('${app.id}')">✕ Reject</button>
+          <button class="btn btn-orange" style="flex:2;font-size:12px;font-family:'Sora',sans-serif;font-weight:700" onclick="approveApplication('${app.id}')">✓ Approve & add as student</button>
+        </div>` : '<div style="font-size:12px;color:var(--green);font-weight:600;text-align:center">✅ Approved and added as student</div>'}
+      </div>`).join('')}
+  `);
+}
+
+function approveApplication(id) {
+  const app = STATE.applications.find(a => a.id === id);
+  if (!app) return;
+  app.status = 'approved';
+  // Add as student
+  const sid = 's' + Date.now();
+  STATE.students.push({
+    id: sid, name: app.name, room: app.room, prop: app.prop,
+    fund: app.fund, nsfas: app.nsfas||null, rent: 3800,
+    paid: false, ls: app.ls||'2025-01-01', le: app.le||'2025-12-31',
+    idno: app.idno||'—', status:'active'
+  });
+  const prop = STATE.properties.find(p => p.id === app.prop);
+  if (prop) prop.occ = Math.min(prop.occ + 1, prop.rooms);
+  STATE.notifications.unshift({id: Date.now(), type:'general', msg:`✅ Application approved: ${app.name} added as student — Room ${app.room}.`, time:'Just now', unread:false});
+  NOTIFS = STATE.notifications;
+  renderNotifs();
+  toast(`✅ ${app.name} approved and added as student!`);
+  showApplications();
+}
+
+function rejectApplication(id) {
+  const app = STATE.applications.find(a => a.id === id);
+  if (app) app.status = 'rejected';
+  toast(`Application rejected`, 'error');
+  showApplications();
+}
+
+// ── OVERRIDE NOTIFS to use STATE ──
+NOTIFS = STATE.notifications;
+
+// ── OVERRIDE getView to use STATE data and add interactive buttons ──
+const _origGetView = getView;
+window.getView = function(id) {
+  const r = currentUser?.role;
+
+  if (id === 'properties') return `
+    <div class="ptitle">Properties</div><div class="psub">All properties — click Add to create new, or Delete to remove</div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="ctitle">🏠 All properties (${STATE.properties.length})</div>
+        <div style="display:flex;gap:8px">
+          ${!['student','hk'].includes(r)?`<button class="btn btn-orange" style="font-size:12px;padding:6px 14px" onclick="showAddProperty()">+ Add property</button>`:''}
+        </div>
+      </div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Property</th><th>Area</th><th>Portfolio Manager</th><th>HK</th><th>RA</th><th>Rooms</th><th>Occupancy</th><th>Rent</th><th>Actions</th></tr></thead><tbody>
+        ${STATE.properties.map(p=>{const pc=Math.round((p.occ/p.rooms)*100);return `<tr>
+          <td><div style="font-weight:700">${p.name}</div><div style="font-size:11px;color:var(--text3)">${p.city}</div></td>
+          <td style="color:var(--text2)">${p.area}</td>
+          <td style="font-weight:600">${p.pm}</td>
+          <td style="color:var(--text2)">${p.hk}</td>
+          <td style="font-size:12px;color:var(--amber);font-weight:500">${p.ra||'—'}</td>
+          <td style="font-weight:700">${p.rooms}</td>
+          <td><div style="display:flex;align-items:center;gap:8px"><div style="width:56px;height:4px;background:var(--borderL);border-radius:2px;overflow:hidden"><div style="width:${pc}%;height:100%;background:${pc>=85?'var(--green)':pc>=70?'var(--amber)':'var(--red)'};border-radius:2px"></div></div><span style="font-size:12px;font-weight:800;color:${pc>=85?'var(--green)':pc>=70?'var(--amber)':'var(--red)'}">${pc}%</span></div></td>
+          <td style="font-weight:700">R ${p.rent.toLocaleString()}/mo</td>
+          <td><div style="display:flex;gap:6px">
+            ${!['student','hk'].includes(r)?`<button class="btn btn-ghost" style="font-size:11px;padding:4px 9px;color:var(--red);border-color:var(--red)" onclick="confirmDeleteProperty('${p.id}')">🗑 Delete</button>`:''}
+          </div></td>
+        </tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if (id === 'students') return `
+    <div class="ptitle">Students</div><div class="psub">All students — add, remove and manage</div>
+    <div class="g4 mb20">
+      <div class="kpi"><div class="kpi-bar" style="background:var(--blue)"></div><div class="kpi-lbl">Total</div><div class="kpi-val">${STATE.students.length}</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">NSFAS</div><div class="kpi-val">${STATE.students.filter(s=>s.fund==='nsfas').length}</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--amber)"></div><div class="kpi-lbl">Applications</div><div class="kpi-val">${STATE.applications.length}</div><div class="kpi-sub" style="cursor:pointer;color:var(--orange);font-weight:600" onclick="showApplications()">View all →</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--red)"></div><div class="kpi-lbl">Overdue</div><div class="kpi-val">${STATE.students.filter(s=>!s.paid).length}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div class="ctitle">🎓 All students (${STATE.students.length})</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="font-size:12px" onclick="showApplications()">📋 Applications (${STATE.applications.length})</button>
+          ${!['student','hk'].includes(r)?`<button class="btn btn-orange" style="font-size:12px;padding:6px 14px" onclick="showAddStudent()">+ Add student</button>`:''}
+        </div>
+      </div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Property</th><th>Room</th><th>Funding</th><th>Lease</th><th>Rent</th><th>Payment</th><th>Actions</th></tr></thead><tbody>
+        ${STATE.students.map(s=>{
+          const prop=STATE.properties.find(p=>p.id===s.prop);
+          const mo=Math.round((new Date(s.le)-new Date())/(1000*60*60*24*30));
+          const fundPill=s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn';
+          return `<tr>
+            <td><div style="font-weight:700">${s.name}</div><div style="font-size:11px;color:var(--text3)">${s.idno}</div></td>
+            <td style="font-size:12px;color:var(--text2)">${prop?.name||'—'}</td>
+            <td style="font-weight:700">${s.room}</td>
+            <td><span class="pill ${fundPill}">${s.fund}</span></td>
+            <td><div style="font-size:12px;color:var(--text2)">${s.ls} → ${s.le}</div><div style="font-size:11px;font-weight:600;color:${mo<3?'var(--red)':mo<6?'var(--amber)':'var(--green)'}">${mo>0?mo+'mo left':'Expired'}</div></td>
+            <td style="font-weight:700">R ${s.rent.toLocaleString()}</td>
+            <td><span class="pill ${s.paid?'pg':'pr'}">${s.paid?'Paid':'Overdue'}</span></td>
+            <td>${!['student','hk'].includes(r)?`<button class="btn btn-ghost" style="font-size:11px;padding:4px 9px;color:var(--red);border-color:var(--red)" onclick="confirmDeleteStudent('${s.id}')">🗑 Remove</button>`:'—'}</td>
+          </tr>`;}).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if (id === 'maintenance') return `
+    <div class="ptitle">Maintenance</div><div class="psub">Log, track and resolve all property maintenance issues</div>
+    <div class="g4 mb20">
+      <div class="kpi"><div class="kpi-bar" style="background:var(--red)"></div><div class="kpi-lbl">Open</div><div class="kpi-val">${STATE.maintenance.filter(m=>m.status!=='fixed').length}</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--red)"></div><div class="kpi-lbl">Critical/Urgent</div><div class="kpi-val">${STATE.maintenance.filter(m=>['critical','urgent'].includes(m.urg)&&m.status!=='fixed').length}</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--amber)"></div><div class="kpi-lbl">In Progress</div><div class="kpi-val">${STATE.maintenance.filter(m=>m.status==='in_progress').length}</div></div>
+      <div class="kpi"><div class="kpi-bar" style="background:var(--green)"></div><div class="kpi-lbl">Fixed</div><div class="kpi-val">${STATE.maintenance.filter(m=>m.status==='fixed').length}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">🔧 All issues</div><button class="btn btn-orange" style="font-size:12px;padding:6px 14px" onclick="showAddMaintenance()">+ Log issue</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Issue</th><th>Property</th><th>Room</th><th>By</th><th>Date</th><th>Urgency</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+        ${STATE.maintenance.map(m=>`<tr>
+          <td><div style="font-weight:700">${m.issue}</div><div style="font-size:11px;color:var(--text3)">${m.action}</div></td>
+          <td style="font-size:12px;color:var(--text2)">${STATE.properties.find(p=>p.id===m.prop)?.name||'—'}</td>
+          <td style="font-weight:700">${m.room}</td>
+          <td style="font-size:12px;color:var(--text2)">${m.by}</td>
+          <td style="font-size:12px;color:var(--text3)">${m.date}</td>
+          <td><span class="pill ${m.urg==='critical'?'pr':m.urg==='urgent'?'pa':'pn'}">${m.urg}</span></td>
+          <td><span class="pill ${m.status==='fixed'?'pg':m.status==='in_progress'?'pa':'pr'}">${m.status.replace('_',' ')}</span></td>
+          <td><div style="display:flex;gap:5px">
+            ${m.status!=='in_progress'&&m.status!=='fixed'?`<button class="btn btn-ghost" style="font-size:10px;padding:3px 7px" onclick="updateMaintenanceStatus('${m.id}','in_progress')">▶ Start</button>`:''}
+            ${m.status!=='fixed'?`<button class="btn btn-ghost" style="font-size:10px;padding:3px 7px;color:var(--green);border-color:var(--green)" onclick="updateMaintenanceStatus('${m.id}','fixed')">✓ Fix</button>`:'<span style="font-size:11px;color:var(--green);font-weight:600">✅ Done</span>'}
+          </div></td>
+        </tr>`).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  if (id === 'electricity') return `
+    <div class="ptitle">Electricity Tracker</div><div class="psub">Monitor and top up prepaid electricity per room</div>
+    <div class="card">
+      <div class="card-hdr"><div class="ctitle">⚡ Suburban House 4 — Room tracker</div></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Room</th><th>Student</th><th>Units remaining</th><th>Last topped up</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+        ${STATE.electricity.map(e=>`<tr>
+          <td style="font-weight:800">${e.room}</td>
+          <td style="color:var(--text2)">${e.student}</td>
+          <td><div style="display:flex;align-items:center;gap:9px"><div style="width:68px;height:5px;background:var(--borderL);border-radius:3px;overflow:hidden"><div style="width:${Math.min(e.units,100)}%;height:100%;background:${e.units<=20?'var(--red)':e.units<=50?'var(--amber)':'var(--green)'};border-radius:3px"></div></div><span style="font-weight:800;color:${e.units<=20?'var(--red)':e.units<=50?'var(--amber)':'var(--navy)'}">${e.units} units</span></div></td>
+          <td style="font-size:12px;color:var(--text3)">${e.last}</td>
+          <td><span class="pill ${e.units<=20?'pr':e.units<=50?'pa':'pg'}">${e.units<=20?'Critical':e.units<=50?'Moderate':'Good'}</span></td>
+          <td><button class="btn ${e.units<=20?'btn-orange':'btn-ghost'}" style="font-size:11px;padding:5px 11px" onclick="showTopUp('${e.id}')">⚡ Top up</button></td>
+        </tr>`).join('')}
+      </tbody></table></div>
+    </div>`;
+
+  // For other views, use the original
+  return _origGetView(id);
+};
+
+// ── OVERRIDE QR FORM to actually submit to STATE ──
+window.renderQR = function() {
+  const c = document.getElementById('qr-content');
+  if (qrStep === 'qr') c.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+      <div><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--navy)">QR Lease Code</div><div style="font-size:13px;color:var(--text2);margin-top:2px">Suburban House 4</div></div>
+      <button onclick="closeQR()" class="btn btn-ghost" style="padding:6px 10px">✕</button>
+    </div>
+    <div style="background:var(--bg);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;margin-bottom:18px">
+      <svg width="160" height="160" viewBox="0 0 160 160" style="display:block;margin:0 auto 10px">
+        <rect width="160" height="160" fill="white"/>
+        <rect x="10" y="10" width="54" height="54" fill="none" stroke="#0F1D35" stroke-width="5" rx="3"/>
+        <rect x="96" y="10" width="54" height="54" fill="none" stroke="#0F1D35" stroke-width="5" rx="3"/>
+        <rect x="10" y="96" width="54" height="54" fill="none" stroke="#0F1D35" stroke-width="5" rx="3"/>
+        <rect x="22" y="22" width="30" height="30" fill="#0F1D35" rx="2"/>
+        <rect x="108" y="22" width="30" height="30" fill="#0F1D35" rx="2"/>
+        <rect x="22" y="108" width="30" height="30" fill="#0F1D35" rx="2"/>
+        <rect x="64" y="64" width="32" height="32" fill="#E8590A" rx="5"/>
+        <text x="80" y="84" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold" font-size="16">N</text>
+      </svg>
+      <div style="font-size:14px;font-weight:700;color:var(--navy)">Scan to apply for lease</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:3px">Suburban House 4 · NestManager</div>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.65;text-align:center">Students scan this QR code, fill in their details and submit. The application appears immediately on the PM dashboard.</p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1" onclick="window.print()">🖨 Print QR</button>
+      <button class="btn btn-orange" style="flex:1" onclick="qrStep='form';renderQR()">Fill form as student →</button>
+    </div>`;
+
+  else if (qrStep === 'form') {
+    c.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:var(--navy)">Lease Application</div>
+        <button onclick="qrStep='qr';renderQR()" class="btn btn-ghost">← Back</button>
+      </div>
+      <div style="background:var(--orangeL);border:1px solid rgba(232,89,10,.2);border-radius:10px;padding:13px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--orange)">📍 Suburban House 4</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">Fill in your details. Your application goes directly to the portfolio manager for review.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="g2"><div><label class="lbl">Full name</label><input class="inp" id="qa-name" placeholder="Sipho Khumalo"></div><div><label class="lbl">ID number</label><input class="inp" id="qa-id" placeholder="0001015800080"></div></div>
+        <div class="g2"><div><label class="lbl">Phone</label><input class="inp" id="qa-phone" placeholder="071 234 5678"></div><div><label class="lbl">Preferred room</label><input class="inp" id="qa-room" placeholder="e.g. 201"></div></div>
+        <div><label class="lbl">Funding type</label><select class="inp" id="qa-fund"><option value="nsfas">NSFAS</option><option value="private">Private</option><option value="bursary">Bursary</option></select></div>
+        <div><label class="lbl">NSFAS number (if applicable)</label><input class="inp" id="qa-nsfas" placeholder="NSF-2025-XXXXXX"></div>
+        <div class="g2"><div><label class="lbl">Lease start</label><input class="inp" type="date" id="qa-ls"></div><div><label class="lbl">Lease end</label><input class="inp" type="date" id="qa-le"></div></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer;padding:10px;background:var(--bg);border-radius:8px"><input type="checkbox" id="qa-agree" style="width:15px;height:15px;accent-color:var(--orange)"> I agree to the house rules and lease terms</label>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button class="btn btn-outline" style="flex:1" onclick="closeQR()">Cancel</button>
+        <button class="btn btn-orange" style="flex:1;font-family:'Sora',sans-serif;font-weight:700" onclick="submitQRForm()">Submit application →</button>
+      </div>`;
+  } else {
+    c.innerHTML = `
+      <div style="text-align:center;padding:10px">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--greenL);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:30px">✓</div>
+        <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:10px">Application submitted!</div>
+        <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:8px">Your application for <strong>Suburban House 4</strong> has been sent to the portfolio manager.</p>
+        <p style="font-size:13px;color:var(--green);font-weight:600;margin-bottom:22px">✅ The PM has been notified and will review within 24 hours.</p>
+        <button class="btn btn-navy" style="width:100%;font-family:'Sora',sans-serif;font-weight:700" onclick="closeQR()">Close</button>
+      </div>`;
+  }
+};
+
+window.submitQRForm = function() {
+  const agree = document.getElementById('qa-agree')?.checked;
+  if (!agree) { toast('Please agree to the terms', 'error'); return; }
+  const form = {
+    name: document.getElementById('qa-name').value.trim(),
+    idno: document.getElementById('qa-id').value.trim(),
+    phone: document.getElementById('qa-phone').value.trim(),
+    room: document.getElementById('qa-room').value.trim(),
+    fund: document.getElementById('qa-fund').value,
+    nsfas: document.getElementById('qa-nsfas').value.trim(),
+    ls: document.getElementById('qa-ls').value,
+    le: document.getElementById('qa-le').value,
+  };
+  if (!form.name) { toast('Please enter your full name', 'error'); return; }
+  submitQRApplication(form);
+  qrStep = 'success';
+  renderQR();
+};
+
+// ── SYNC STATE on every view ──
+const _origMaint = window.MAINT;
+Object.defineProperty(window, 'MAINT', {
+  get: () => STATE.maintenance,
+  set: (v) => { STATE.maintenance = v; }
+});
+Object.defineProperty(window, 'NOTIFS', {
+  get: () => STATE.notifications,
+  set: (v) => { STATE.notifications = v; }
+});
+
+console.log('✅ NestManager interactive patch loaded');
+</script>
