@@ -20,7 +20,7 @@
   --bg:#F4F6FB;
   --bg2:#EDF2F8;
   --surface:rgba(255,255,255,.82);
-  --glass:rgba(255,255,255,.7);
+  --glass:rgba(255,255,255,.75);
   --border:#D7E0EE;
   --borderL:#E2E8F0;
   --text:#102840;
@@ -42,7 +42,7 @@ img{max-width:100%;display:block}
 ::-webkit-scrollbar-thumb{background:rgba(15,24,56,.18);border-radius:999px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+@keyframes pulseGlow{0%,100%{box-shadow: 0 0 15px rgba(220,38,38,0.2); transform: scale(1);} 50%{box-shadow: 0 0 25px rgba(220,38,38,0.5); transform: scale(1.02);}}
 .screen{display:none;min-height:100vh}
 .screen.show{display:flex}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:14px;font-size:13px;font-weight:700;transition:all .2s var(--ease);border:none;text-decoration:none}
@@ -54,6 +54,8 @@ img{max-width:100%;display:block}
 .btn-outline:hover{border-color:var(--navy)}
 .btn-ghost{background:transparent;color:var(--text2);border:1.5px solid rgba(15,24,56,.12);padding:9px 14px}
 .btn-ghost:hover{color:var(--navy);border-color:var(--navy)}
+.btn-danger{background:rgba(220,38,38,0.1);color:var(--red);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;}
+.btn-danger:hover{background:var(--red);color:#fff}
 .inp{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:14px;background:#fff;color:var(--text);outline:none;transition:all .2s var(--ease);font-size:13px}
 .inp:focus{border-color:var(--navy2);box-shadow:0 0 0 4px rgba(37,120,235,.08)}
 .lbl{display:block;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
@@ -69,7 +71,7 @@ img{max-width:100%;display:block}
 .card:hover{transform:translateY(-3px);box-shadow:0 28px 66px rgba(15,24,56,.16)}
 .card-hdr{padding:20px 24px;border-bottom:1px solid rgba(15,24,56,.07);display:flex;align-items:center;justify-content:space-between;gap:14px}
 .ctitle{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--navy)}
-.kpi{background:rgba(255,255,255,.75);border:1px solid rgba(15,24,56,.08);border-radius:20px;padding:22px;position:relative;overflow:hidden;box-shadow:var(--shadow-soft)}
+.kpi{background:rgba(255,255,255,.75);backdrop-filter:blur(12px);border:1px solid rgba(15,24,56,.08);border-radius:20px;padding:22px;position:relative;overflow:hidden;box-shadow:var(--shadow-soft)}
 .kpi-bar{position:absolute;top:0;left:0;right:0;height:4px;border-radius:14px 14px 0 0}
 .kpi-lbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
 .kpi-val{font-family:'Sora',sans-serif;font-size:30px;font-weight:800;color:var(--navy)}
@@ -116,935 +118,720 @@ img{max-width:100%;display:block}
 .checkbox-chip{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:#fff;font-size:13px;cursor:pointer;transition:all .18s}
 .checkbox-chip:hover{border-color:var(--navy)}
 .checkbox-chip input{accent-color:var(--orange)}
-.table-wrap{overflow-x:auto}
+.table-wrap{overflow-x:auto; margin-top: 10px;}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:14px 16px;border-bottom:2px solid rgba(15,24,56,.08);white-space:nowrap}
+th{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:14px 16px;border-bottom:2px solid rgba(15,24,56,.08);white-space:nowrap;text-align:left;}
 td{padding:14px 16px;border-bottom:1px solid rgba(15,24,56,.07);vertical-align:middle;color:var(--text)}
 tr:hover td{background:rgba(37,120,235,.05)}
 .chat-box{background:rgba(255,255,255,.78);border:1px solid rgba(15,24,56,.08);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px;min-height:360px}
+.chat-messages{flex:1; overflow-y:auto; max-height:260px; display:flex; flex-direction:column; gap:10px;}
 .chat-message{display:flex;gap:12px;align-items:flex-start}
-.chat-message.pm{justify-content:flex-end}
-.chat-bubble{max-width:78%;padding:13px 14px;border-radius:18px;line-height:1.5;font-size:13px;position:relative}
+.chat-message.me-align{justify-content:flex-end}
+.chat-bubble{max-width:78%;padding:11px 14px;border-radius:18px;line-height:1.5;font-size:13px}
 .chat-bubble.from{background:rgba(37,120,235,.08);color:var(--navy)}
 .chat-bubble.me{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff}
-.chat-input{display:flex;gap:10px;align-items:center}
-.chat-input textarea{flex:1;min-height:54px;resize:none}
+.chat-input{display:flex;gap:10px;align-items:center;margin-top:auto;}
+.chat-input textarea{flex:1;min-height:44px;max-height:44px;resize:none;padding:10px;border-radius:10px;border:1px solid var(--border);}
 .section-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(37,120,235,.08);color:var(--navy);font-size:12px;font-weight:700}
 .tracker-tile{padding:18px;border-radius:18px;background:linear-gradient(135deg,rgba(37,120,235,.08),rgba(255,255,255,.95));border:1px solid rgba(37,120,235,.1)}
 .badge-glow{box-shadow:0 0 20px rgba(16,40,64,.08)}
+.incident-card { animation: pulseGlow 3s infinite ease-in-out; border: 1px solid var(--red) !important;}
 </style>
 </head>
 <body>
 
-<!-- Welcome -->
 <div class="screen show" id="s-welcome" style="flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(37,120,235,.16),transparent 20%),radial-gradient(circle at bottom right,rgba(233,105,26,.14),transparent 22%);pointer-events:none"></div>
   <div style="max-width:780px;position:relative;z-index:1;text-align:center">
-    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:28px;padding:12px 18px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(10px)">
+    <div style="display:inline-flex;align-items:center;gap:12px;margin-bottom:28px;padding:12px 18px;border-radius:999px;background:rgba(255,255,255,0.8);border:1px solid var(--border);backdrop-filter:blur(10px)">
       <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--orange2));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:#fff">N</div>
       <div style="text-align:left">
-        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff">NestManager</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.55);margin-top:3px">Student Accommodation · Gqeberha</div>
+        <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:var(--navy)">NestManager</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:3px">Student Accommodation · Gqeberha</div>
       </div>
     </div>
-    <h1 style="font-family:'Sora',sans-serif;font-size:clamp(34px,6vw,62px);font-weight:800;color:#fff;line-height:1.05;margin-bottom:20px">
-      Premium accommodation management for South African student housing.
+    <h1 style="font-family:'Sora',sans-serif;font-size:clamp(34px,6vw,62px);font-weight:800;color:var(--navy);line-height:1.05;margin-bottom:20px;letter-spacing:-0.03em;">
+      Premium housing controls for student accommodations.
     </h1>
-    <p style="font-size:16px;color:rgba(255,255,255,.72);line-height:1.8;max-width:640px;margin:0 auto 34px">
-      Executive dashboards, property and PM workflows, incident simulation and local Metro-ready logistics for Summerstrand, Humewood, Central, Mill Park and Nelson Mandela Bay.
+    <p style="font-size:16px;color:var(--text2);line-height:1.8;max-width:640px;margin:0 auto 34px">
+      Executive management dashboard, direct PM assigning algorithms, local infrastructure incident simulators, and real-time Housekeeper reports optimized for Nelson Mandela Bay metros.
     </p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
-      <button class="btn btn-orange" style="font-size:15px;padding:14px 28px" onclick="showScreen('s-login')">Sign in</button>
-      <button class="btn btn-outline" style="font-size:15px;padding:14px 28px" onclick="showScreen('s-register')">Create account</button>
-    </div>
-    <div style="margin-top:46px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;justify-items:center">
-      <div style="color:#fff"><div style="font-size:28px;font-weight:800">5</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px">Properties</div></div>
-      <div style="color:#fff"><div style="font-size:28px;font-weight:800">124</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px">Active rooms</div></div>
-      <div style="color:#fff"><div style="font-size:28px;font-weight:800">7</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px">PMs</div></div>
-      <div style="color:#fff"><div style="font-size:28px;font-weight:800">18</div><div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:4px">HKs</div></div>
+      <button class="btn btn-navy" style="font-size:15px;padding:14px 28px" onclick="showScreen('s-login')">Sign In</button>
+      <button class="btn btn-outline" style="font-size:15px;padding:14px 28px" onclick="showScreen('s-register')">Create Enterprise Account</button>
     </div>
   </div>
 </div>
 
-<!-- Login -->
 <div class="screen" id="s-login" style="background:linear-gradient(180deg,#0D1F3C 0%,#0C1730 100%);align-items:center;overflow:hidden">
-  <div style="position:absolute;top:0;left:0;width:46%;height:100%;background:radial-gradient(circle at 10% 20%,rgba(255,255,255,.08),transparent 24%);pointer-events:none"></div>
-  <div style="width:44%;padding:56px 44px;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:1">
+  <div style="width:44%;padding:56px 44px;display:flex;flex-direction:column;justify-content:space-between;position:relative;z-index:1;min-height:100vh;">
     <div id="login-logo"></div>
     <div>
       <h1 style="font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;color:#fff;line-height:1.12;margin-bottom:18px">Welcome back to NestManager</h1>
-      <p style="font-size:14px;color:rgba(255,255,255,.65);line-height:1.8;max-width:380px">Sign in securely and access your Suburban Digs portfolio across Gqeberha.</p>
+      <p style="font-size:14px;color:rgba(255,255,255,.65);line-height:1.8;max-width:380px">Sign in securely to handle operations across Gqeberha districts.</p>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;color:#fff;font-size:12px">
-      <div style="background:rgba(255,255,255,.08);padding:18px;border-radius:18px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)">
-        <div style="font-size:24px;font-weight:800">5</div>
-        <div style="margin-top:6px;color:rgba(255,255,255,.6)">Properties</div>
+      <div style="background:rgba(255,255,255,.08);padding:18px;border-radius:18px;">
+        <div style="font-size:24px;font-weight:800" id="stat-props">5</div>
+        <div style="margin-top:6px;color:rgba(255,255,255,.6)">Accommodations</div>
       </div>
-      <div style="background:rgba(255,255,255,.08);padding:18px;border-radius:18px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)">
-        <div style="font-size:24px;font-weight:800">124</div>
-        <div style="margin-top:6px;color:rgba(255,255,255,.6)">Student rooms</div>
+      <div style="background:rgba(255,255,255,.08);padding:18px;border-radius:18px;">
+        <div style="font-size:24px;font-weight:800" id="stat-rooms">104</div>
+        <div style="margin-top:6px;color:rgba(255,255,255,.6)">Monitored Rooms</div>
       </div>
     </div>
   </div>
   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:28px;position:relative;z-index:1">
-    <div class="card" style="width:100%;max-width:400px;padding:28px;backdrop-filter:blur(18px);border:1px solid rgba(15,24,56,.08);">
-      <button onclick="showScreen('s-welcome')" style="background:none;border:none;color:var(--text3);font-size:13px;margin-bottom:18px;display:flex;align-items:center;gap:6px">← Back to home</button>
-      <h2 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--navy);margin-bottom:6px">Sign in</h2>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:24px">Use demo credentials or enter any email and password to proceed.</p>
-      <button class="btn btn-outline" style="width:100%;margin-bottom:18px;font-size:14px" onclick="demoLogin('director')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
-        Continue with Microsoft
-      </button>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-        <span style="font-size:12px;color:var(--text3)">or use email</span>
-        <div style="flex:1;height:1px;background:var(--border)"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:14px">
-        <div><label class="lbl">Email</label><input class="inp" type="email" id="login-email" placeholder="name@nestmanager.app"></div>
-        <div><label class="lbl">Password</label><input class="inp" type="password" id="login-pass" placeholder="••••••••"></div>
-      </div>
-      <div id="login-err" style="display:none;background:#FEE2E2;border:1px solid #FECACA;border-radius:14px;padding:12px 14px;margin-bottom:14px;color:#B91C1C;font-size:13px"></div>
-      <button class="btn btn-navy" style="width:100%;margin-bottom:18px" onclick="tryLogin()">Sign in to NestManager</button>
+    <div class="card" style="width:100%;max-width:440px;padding:28px;background:#fff;">
+      <button onclick="showScreen('s-welcome')" style="background:none;border:none;color:var(--text3);font-size:13px;margin-bottom:18px;display:flex;align-items:center;gap:6px">← Back to Home</button>
+      <h2 style="font-family:'Sora',sans-serif;font-size:26px;font-weight:800;color:var(--navy);margin-bottom:6px">Sign In</h2>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:24px">Select a structural position below to test custom views instantly.</p>
+      
       <div style="background:rgba(239,246,255,.8);border:1px dashed rgba(37,120,235,.24);border-radius:16px;padding:16px">
-        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.12em;margin-bottom:10px">DEMO LOGIN</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.12em;margin-bottom:10px">DEMO ACCESS CHANNELS</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <button class="btn btn-ghost" style="font-size:12px" onclick="demoLogin('director')">Director</button>
-          <button class="btn btn-ghost" style="font-size:12px" onclick="demoLogin('ops')">Ops Manager</button>
-          <button class="btn btn-ghost" style="font-size:12px" onclick="demoLogin('pm')">Portfolio Manager</button>
-          <button class="btn btn-ghost" style="font-size:12px" onclick="demoLogin('hk')">Housekeeper</button>
-          <button class="btn btn-ghost" style="font-size:12px;grid-column:1 / -1" onclick="demoLogin('student')">Student</button>
+          <button class="btn btn-ghost" style="font-size:12px;background:#fff;" onclick="demoLogin('director')">Director</button>
+          <button class="btn btn-ghost" style="font-size:12px;background:#fff;" onclick="demoLogin('ops')">Ops Manager</button>
+          <button class="btn btn-ghost" style="font-size:12px;background:#fff;" onclick="demoLogin('pm')">Portfolio Mgr</button>
+          <button class="btn btn-ghost" style="font-size:12px;background:#fff;" onclick="demoLogin('hk')">Housekeeper</button>
+          <button class="btn btn-ghost" style="font-size:12px;grid-column:1 / -1;background:#fff;" onclick="demoLogin('student')">Student Portal</button>
         </div>
       </div>
-      <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:18px">Protected by demo authentication · Suburban Digs © 2026</p>
+      <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:18px">Protected Sandbox Matrix · Suburban Digs © 2026</p>
     </div>
   </div>
 </div>
 
-<!-- Register -->
 <div class="screen" id="s-register" style="align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,#0D1F3C 0%,#0C1730 100%)">
-  <div class="card" style="width:100%;max-width:460px;padding:34px">
+  <div class="card" style="width:100%;max-width:460px;padding:34px;background:#fff;">
     <button onclick="showScreen('s-welcome')" style="background:none;border:none;color:var(--text3);font-size:13px;margin-bottom:18px;display:flex;align-items:center;gap:6px">← Back</button>
     <div style="margin-bottom:18px">
-      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--navy)">Register your company</div>
-      <p style="font-size:13px;color:var(--text2);margin-top:8px">Your team will access NestManager for accommodation in Gqeberha.</p>
+      <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:var(--navy)">Register Enterprise Hub</div>
+      <p style="font-size:13px;color:var(--text2);margin-top:8px">Onboard customized property systems in Nelson Mandela Bay.</p>
     </div>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div><label class="lbl">Company name</label><input class="inp" placeholder="Suburban Digs"></div>
+      <div><label class="lbl">Company Name</label><input class="inp" placeholder="Suburban Digs Ltd"></div>
       <div class="g2">
-        <div><label class="lbl">First name</label><input class="inp" placeholder="Ruvimbo"></div>
-        <div><label class="lbl">Last name</label><input class="inp" placeholder="Muringi"></div>
+        <div><label class="lbl">First Name</label><input class="inp" placeholder="Ruvimbo"></div>
+        <div><label class="lbl">Last Name</label><input class="inp" placeholder="Muringi"></div>
       </div>
-      <div><label class="lbl">Work email</label><input class="inp" type="email" placeholder="admin@suburbandigs.co.za"></div>
-      <div><label class="lbl">Properties</label><select class="inp"><option>1–5</option><option>6–20</option><option selected>21–50</option><option>50+</option></select></div>
-      <div><label class="lbl">Password</label><input class="inp" type="password" placeholder="Create a strong password"></div>
+      <div><label class="lbl">Corporate Email</label><input class="inp" type="email" placeholder="admin@suburbandigs.co.za"></div>
     </div>
-    <button class="btn btn-orange" style="width:100%;margin-top:20px">Create NestManager account</button>
-    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:14px">By registering you agree to NestManager Terms of Service.</p>
+    <button class="btn btn-orange" style="width:100%;margin-top:20px;" onclick="showScreen('s-login')">Build NestManager Ecosystem</button>
   </div>
 </div>
 
-<!-- App -->
 <div class="screen" id="s-app" style="flex-direction:row;min-height:100vh">
   <div class="sidebar">
     <div class="sb-logo">
       <div style="width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--orange2));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:18px;color:#fff;box-shadow:0 18px 40px rgba(233,105,26,.26)">N</div>
       <div>
         <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:#fff">NestManager</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:2px">Suburban Digs</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:2px">Suburban Digs Engine</div>
       </div>
     </div>
     <div class="sb-user">
       <div id="sb-avatar" style="width:38px;height:38px;border-radius:14px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:14px;color:#fff;font-weight:800">U</div>
-      <div style="min-width:0">
+      <div style="min-width:0; flex:1;">
         <div id="sb-name" style="font-size:13px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">User</div>
         <span id="sb-rolepill" class="pill po" style="font-size:10px;margin-top:4px;display:inline-block">Role</span>
       </div>
     </div>
     <nav id="sb-nav" style="flex:1;padding:10px 0;overflow-y:auto"></nav>
     <div class="sb-bot">
-      <button class="sb-item" onclick="toggleNotif()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span style="flex:1">Notifications</span>
+      <button class="sb-item" onclick="toggleNotif()" style="width:100%; margin:4px 0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span style="flex:1; margin-left:8px;">System Alerts</span>
         <span class="sb-badge" id="notif-count">0</span>
       </button>
-      <button class="sb-logout" onclick="doLogout()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign out
+      <button class="sb-logout" onclick="doLogout()" style="width:100%;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
       </button>
     </div>
   </div>
   <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
     <div class="topbar">
-      <div class="tb-title" id="tb-title">Dashboard</div>
+      <div class="tb-title" id="tb-title">Dashboard Matrix</div>
       <div style="display:flex;align-items:center;gap:10px">
-        <button onclick="toggleNotif()" style="position:relative;width:42px;height:42px;border-radius:14px;border:1.5px solid rgba(15,24,56,.12);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .2s">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <button class="btn btn-orange" id="trigger-event-btn" onclick="triggerIncident()" style="font-size:12px;padding:8px 14px;">⚡ Simulate Incident</button>
+        <button onclick="toggleNotif()" style="position:relative;width:42px;height:42px;border-radius:14px;border:1.5px solid rgba(15,24,56,.12);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text2);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
           <span id="tb-notif-dot" style="display:none;position:absolute;top:8px;right:8px;width:9px;height:9px;background:#EF4444;border-radius:50%;border:2px solid #fff"></span>
         </button>
-        <button class="btn btn-ghost" id="trigger-event-btn" onclick="triggerEvent('manual')" style="font-size:12px;padding:10px 14px;display:none">Trigger incident</button>
       </div>
     </div>
-    <main id="app-content" style="flex:1;overflow-y:auto;padding:26px 26px 34px"></main>
+    <main id="app-content" style="flex:1;overflow-y:auto;padding:26px;"></main>
   </div>
 </div>
 
-<!-- Notifications -->
 <div class="notif-panel" id="notif-panel">
   <header>
     <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:36px;height:36px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--orange2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px">!</div>
+      <div style="width:36px;height:36px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--orange2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px; font-weight:bold">!</div>
       <div>
-        <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--navy)">Notifications</div>
-        <div id="notif-pill" style="font-size:12px;color:var(--text3);margin-top:2px">0 new</div>
+        <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--navy)">Critical Dispatches</div>
+        <div id="notif-pill" style="font-size:12px;color:var(--text3);margin-top:2px">0 open alerts</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;align-items:center">
-      <button onclick="markAllRead()" style="font-size:12px;font-weight:700;color:var(--orange);background:none;border:none;cursor:pointer">Mark all read</button>
-      <button onclick="toggleNotif()" style="width:32px;height:32px;border-radius:12px;border:1.5px solid rgba(15,24,56,.12);background:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">✕</button>
+      <button onclick="markAllRead()" style="font-size:12px;font-weight:700;color:var(--orange);background:none;border:none;">Clear Logs</button>
+      <button onclick="toggleNotif()" style="width:32px;height:32px;border-radius:12px;border:1.5px solid rgba(15,24,56,.12);background:#fff;font-size:12px;display:flex;align-items:center;justify-content:center">✕</button>
     </div>
   </header>
   <div class="panel-body" id="notif-list"></div>
 </div>
 
-<!-- Modal -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal-box" id="modal-box"></div>
 </div>
 
 <script>
 const ROLE_LABELS = {
-  director:'Director',
-  ops:'Operations Manager',
-  accounts:'Accounts',
-  pm:'Portfolio Manager',
-  hk:'Housekeeper',
-  student:'Student'
+  director: 'Director (Corporate Elite)',
+  ops: 'Operations Manager',
+  pm: 'Portfolio Manager',
+  hk: 'Housekeeper Team',
+  student: 'Student Resident'
 };
 const ROLE_BADGES = {
-  director:'pn',
-  ops:'po',
-  accounts:'pgo',
-  pm:'po',
-  hk:'pb',
-  student:'pg'
+  director: 'pn',
+  ops: 'po',
+  pm: 'pgo',
+  hk: 'pb',
+  student: 'pg'
 };
 
 const STATE = {
-  properties:[
-    {id:'p1',name:'Summerstrand Digs',area:'Summerstrand',city:'Gqeberha',rooms:28,occ:24,pm:'Emihle Bantshi',pmId:'pm1',hk:'Thabo M.',hkId:'hk1',ra:'Lungile M.',rent:3900,nsfas:true},
-    {id:'p2',name:'Humewood Residence',area:'Humewood',city:'Gqeberha',rooms:22,occ:19,pm:'Emihle Bantshi',pmId:'pm1',hk:'Nomsa D.',hkId:'hk2',ra:'Jabu N.',rent:4100,nsfas:true},
-    {id:'p3',name:'Central Quarters',area:'Central',city:'Gqeberha',rooms:18,occ:16,pm:'Thando Ngwadla',pmId:'pm2',hk:'Lebo T.',hkId:'hk3',ra:'Sindi M.',rent:4300,nsfas:false},
-    {id:'p4',name:'Mill Park Lodge',area:'Mill Park',city:'Gqeberha',rooms:20,occ:17,pm:'Thando Ngwadla',pmId:'pm2',hk:'Sipho N.',hkId:'hk4',ra:'Abigail M.',rent:4200,nsfas:true},
-    {id:'p5',name:'Bayview House',area:'Summerstrand',city:'Gqeberha',rooms:16,occ:13,pm:'Shakira Adams',pmId:'pm3',hk:'Zanele M.',hkId:'hk5',ra:'Kholiwe P.',rent:4500,nsfas:true},
+  properties: [
+    {id:'p1',name:'Summerstrand Digs',area:'Summerstrand',rooms:28,occ:24,pmId:'pm1',hkId:'hk1',rent:3900,nsfas:true},
+    {id:'p2',name:'Humewood Residence',area:'Humewood',rooms:22,occ:19,pmId:'pm1',hkId:'hk2',rent:4100,nsfas:true},
+    {id:'p3',name:'Central Quarters',area:'Central',rooms:18,occ:16,pmId:'pm2',hkId:'hk3',rent:4300,nsfas:false},
+    {id:'p4',name:'Mill Park Lodge',area:'Mill Park',rooms:20,occ:17,pmId:'pm2',hkId:'hk4',rent:4200,nsfas:true},
+    {id:'p5',name:'Bayview House',area:'Summerstrand',rooms:16,occ:13,pmId:'pm3',hkId:'hk5',rent:4500,nsfas:true},
   ],
-  students:[
-    {id:'s1',name:'Thandeka Mokoena',room:'101',prop:'p1',fund:'nsfas',nsfas:'NSF-2025-001',rent:3900,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0001015800080',status:'active'},
-    {id:'s2',name:'Sipho Dlamini',room:'102',prop:'p1',fund:'private',nsfas:null,rent:3900,ls:'2025-01-15',le:'2025-12-31',paid:true,idno:'9908125500086',status:'active'},
-    {id:'s3',name:'Nomvula Zulu',room:'103',prop:'p2',fund:'nsfas',nsfas:'NSF-2025-003',rent:4100,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0204306700083',status:'active'},
-    {id:'s4',name:'Kagiso Molefe',room:'104',prop:'p2',fund:'private',nsfas:null,rent:4100,ls:'2025-02-01',le:'2025-10-31',paid:false,idno:'0109125800081',status:'active'},
-    {id:'s5',name:'Lerato Nkosi',room:'105',prop:'p3',fund:'nsfas',nsfas:'NSF-2025-005',rent:4300,ls:'2025-02-01',le:'2025-11-30',paid:true,idno:'0302286100087',status:'active'},
-    {id:'s6',name:'Bongani Khumalo',room:'201',prop:'p4',fund:'bursary',nsfas:null,rent:4200,ls:'2025-01-20',le:'2025-12-20',paid:true,idno:'0205125900084',status:'active'},
-    {id:'s7',name:'Precious Mahlangu',room:'202',prop:'p4',fund:'nsfas',nsfas:'NSF-2025-007',rent:4200,ls:'2025-02-10',le:'2025-11-30',paid:false,idno:'0107146200082',status:'active'},
+  students: [
+    {id:'s1',name:'Thandeka Mokoena',room:'101',prop:'p1',fund:'nsfas',rent:3900,paid:true,status:'active'},
+    {id:'s2',name:'Sipho Dlamini',room:'102',prop:'p1',fund:'private',rent:3900,paid:true,status:'active'},
+    {id:'s3',name:'Nomvula Zulu',room:'103',prop:'p2',fund:'nsfas',rent:4100,paid:true,status:'active'},
+    {id:'s4',name:'Kagiso Molefe',room:'104',prop:'p2',fund:'private',rent:4100,paid:false,status:'active'},
+    {id:'s5',name:'Lerato Nkosi',room:'105',prop:'p3',fund:'nsfas',rent:4300,paid:true,status:'active'},
   ],
-  pms:[
-    {id:'pm1',name:'Emihle Bantshi',email:'emihle@nestmanager.app',assignedProps:['p1','p2']},
-    {id:'pm2',name:'Thando Ngwadla',email:'thando@nestmanager.app',assignedProps:['p3','p4']},
-    {id:'pm3',name:'Shakira Adams',email:'shakira@nestmanager.app',assignedProps:['p5']},
+  pms: [
+    {id:'pm1',name:'Emihle Bantshi',email:'emihle@nestmanager.app'},
+    {id:'pm2',name:'Thando Ngwadla',email:'thando@nestmanager.app'},
+    {id:'pm3',name:'Shakira Adams',email:'shakira@nestmanager.app'},
   ],
-  hks:[
+  hks: [
     {id:'hk1',name:'Thabo M.',prop:'p1'},
     {id:'hk2',name:'Nomsa D.',prop:'p2'},
     {id:'hk3',name:'Lebo T.',prop:'p3'},
     {id:'hk4',name:'Sipho N.',prop:'p4'},
     {id:'hk5',name:'Zanele M.',prop:'p5'},
   ],
-  maintenance:[
-    {id:'m1',prop:'p1',room:'3',issue:'Geyser burst',action:'Plumber called',urg:'critical',status:'open',by:'HK Thabo',date:'2025-06-07'},
-    {id:'m2',prop:'p2',room:'Reception',issue:'Biometric gate failure',action:'Technician booked',urg:'urgent',status:'in_progress',by:'HK Nomsa',date:'2025-06-06'},
-    {id:'m3',prop:'p3',room:'Floor 2',issue:'Wi-Fi down',action:'ISP contacted',urg:'normal',status:'in_progress',by:'HK Lebo',date:'2025-06-07'},
-    {id:'m4',prop:'p4',room:'108',issue:'Broken window',action:'Glazier scheduled',urg:'normal',status:'pending',by:'HK Sipho',date:'2025-06-05'},
-    {id:'m5',prop:'p1',room:'301',issue:'Leaking tap',action:'Fixed by plumber',urg:'normal',status:'fixed',by:'HK Thabo',date:'2025-06-04'},
+  maintenance: [
+    {id:'m1',prop:'p1',room:'3',issue:'Geyser burst',urg:'critical',status:'open',by:'HK Thabo',date:'2026-06-25'},
+    {id:'m2',prop:'p2',room:'Gate 1',issue:'Biometric scanner malfunction',urg:'urgent',status:'in_progress',by:'HK Nomsa',date:'2026-06-26'},
   ],
-  electricity:[
-    {id:'e1',prop:'p1',room:'101',student:'Thandeka M.',units:12,last:'2025-05-15'},
-    {id:'e2',prop:'p1',room:'102',student:'Sipho D.',units:50,last:'2025-05-20'},
-    {id:'e3',prop:'p1',room:'103',student:'Nomvula Z.',units:85,last:'2025-05-25'},
-    {id:'e4',prop:'p1',room:'104',student:'Kagiso M.',units:15,last:'2025-05-10'},
-    {id:'e5',prop:'p1',room:'105',student:'Lerato N.',units:70,last:'2025-05-28'},
+  notifications: [
+    {id:1,msg:'🔧 Critical: Geyser burst at Summerstrand Digs.',unread:true},
+    {id:2,msg:'⚠️ Infrastructure: Load shedding phase failure reported in Humewood.',unread:true}
   ],
-  notifications:[
-    {id:1,type:'maintenance',msg:'🔧 Urgent: Geyser burst at Summerstrand Digs Room 3.',time:'2 min ago',unread:true,prop:'p1'},
-    {id:2,type:'maintenance',msg:'🔒 Power failure reported in Humewood Residence reception.',time:'1 hr ago',unread:true,prop:'p2'},
-    {id:3,type:'electricity',msg:'⚡ Low electricity alert: Room 101 — Summerstrand Digs.',time:'3 hrs ago',unread:true,prop:'p1'},
-    {id:4,type:'hk',msg:'📋 Weekly report overdue: Mill Park Lodge — Sipho N.',time:'5 hrs ago',unread:true,prop:'p4'},
-    {id:5,type:'payment',msg:'💰 NSFAS payment cleared: Thandeka Mokoena Room 101.',time:'Yesterday',unread:true,prop:'p1'},
-    {id:6,type:'lease',msg:'📄 New lease QR application waiting for review.',time:'2 hrs ago',unread:true,prop:'p1'},
+  messages: [
+    {id:'msg1',from:'hk1',to:'pm1',text:'Room 3 plumbing lines require urgent check.',time:'10:42 AM'},
+    {id:'msg2',from:'pm1',to:'hk1',text:'Plumber dispatching from PE Central now.',time:'10:45 AM'},
   ],
-  messages:[
-    {id:'msg1',from:'HK Thabo',to:'Emihle Bantshi',prop:'p1',text:'Geyser burst in Room 3 just now, plumber is en route.',time:'2 min ago',direction:'incoming'},
-    {id:'msg2',from:'Emihle Bantshi',to:'HK Thabo',prop:'p1',text:'Thanks. Keep me posted and update maintenance log.',time:'Just now',direction:'outgoing'},
-  ],
-  applications:[]
+  reports: [
+    {id:'r1',hkId:'hk1',propId:'p1',weekEnding:'2026-06-26',text:'Rooms checked. Block B extractor fans cleaned.',status:'Approved'},
+    {id:'r2',hkId:'hk2',propId:'p2',weekEnding:'2026-06-26',text:'High moisture detected in ground unit 4. Requires assessment.',status:'Pending'}
+  ]
 };
 
 const DEMO_USERS = {
-  director:{role:'director',name:'Ruvimbo Muringi'},
-  ops:{role:'ops',name:'Nosiphamandla Mgijima'},
-  accounts:{role:'accounts',name:'Chiedza Katsere'},
-  pm:{role:'pm',name:'Emihle Bantshi',id:'pm1'},
-  hk:{role:'hk',name:'Thabo M.',id:'hk1'},
-  student:{role:'student',name:'Thandeka Mokoena',id:'s1'}
+  director: {role:'director',name:'Ruvimbo Muringi',id:'dir1'},
+  ops: {role:'ops',name:'Nosiphamandla Mgijima',id:'ops1'},
+  pm: {role:'pm',name:'Emihle Bantshi',id:'pm1'},
+  hk: {role:'hk',name:'Thabo M.',id:'hk1'},
+  student: {role:'student',name:'Thandeka Mokoena',id:'s1'}
 };
 
 let currentUser = null;
-let currentView = 'dashboard';
-let autoEventTimer = null;
+let activeTab = 'dashboard';
 
-function logo(dark=false,small=false){
-  const size = small?34:38;
-  return `
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="width:${size}px;height:${size}px;border-radius:14px;background:linear-gradient(135deg,var(--orange),var(--orange2));display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:${small?16:18}px;color:#fff;font-weight:800">N</div>
-      <div>
-        <div style="font-family:'Sora',sans-serif;font-size:${small?14:16}px;font-weight:800;color:${dark?'#fff':'var(--navy)'}">NestManager</div>
-        <div style="font-size:${small?10:11}px;color:${dark?'rgba(255,255,255,.65)':'var(--text3)'};margin-top:3px">· Suburban Digs</div>
-      </div>
-    </div>`;
-}
-function avatar(name,size=36){const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();return `<div style="width:${size}px;height:${size}px;border-radius:14px;background:var(--navy);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Sora',sans-serif;font-size:${Math.round(size*0.38)}px;font-weight:800">${initials}</div>`;}
-function pill(text,cls){return `<span class="pill ${cls}">${text}</span>`;}
-function kpi(label,value,sub,trend,color){return `<div class="kpi"><div class="kpi-bar" style="background:${color}"></div><div class="kpi-lbl">${label}</div><div class="kpi-val">${value}</div>${sub?`<div class="kpi-sub">${sub}</div>`:''}${trend?`<div class="kpi-trend" style="color:${trend.startsWith('+')?'var(--green)':'var(--red)'}">${trend}</div>`:''}</div>`;}
-function pct(num,den){return den?Math.round((num/den)*100):0;}
-function propName(propId){return (STATE.properties.find(p=>p.id===propId)||{}).name||'—';}
-function getCurrentPm(){return STATE.pms.find(pm=>pm.id===currentUser?.id);}
-function getCurrentHk(){return STATE.hks.find(hk=>hk.id===currentUser?.id);}
-function getCurrentStudent(){return STATE.students.find(s=>s.id===currentUser?.id);}
-function getVisibleProperties(){
-  if(!currentUser) return [];
-  if(['director','ops','accounts'].includes(currentUser.role)) return STATE.properties;
-  if(currentUser.role==='pm') return STATE.properties.filter(p=>currentUser.assignedProps?.includes(p.id));
-  if(currentUser.role==='hk') return STATE.properties.filter(p=>p.id===currentUser.prop);
-  if(currentUser.role==='student'){ const student=getCurrentStudent(); return student?STATE.properties.filter(p=>p.id===student.prop):[]; }
-  return STATE.properties;
-}
-function getVisibleStudents(){
-  if(!currentUser) return [];
-  if(['director','ops','accounts'].includes(currentUser.role)) return STATE.students;
-  if(currentUser.role==='pm') return STATE.students.filter(s=>currentUser.assignedProps?.includes(s.prop));
-  if(currentUser.role==='hk') return STATE.students.filter(s=>s.prop===currentUser.prop);
-  if(currentUser.role==='student') return currentUser.id?STATE.students.filter(s=>s.id===currentUser.id):[];
-  return [];
-}
-function getVisibleMaintenance(){
-  if(!currentUser) return STATE.maintenance;
-  if(['director','ops','accounts'].includes(currentUser.role)) return STATE.maintenance;
-  if(currentUser.role==='pm') return STATE.maintenance.filter(m=>currentUser.assignedProps?.includes(m.prop));
-  if(currentUser.role==='hk') return STATE.maintenance.filter(m=>m.prop===currentUser.prop || m.by.includes(currentUser.name));
-  if(currentUser.role==='student'){ const student=getCurrentStudent(); return student?STATE.maintenance.filter(m=>m.prop===student.prop&&m.room===student.room):[]; }
-  return STATE.maintenance;
-}
-function getVisibleNotifications(){ if(!currentUser) return STATE.notifications;
-  if(['director','ops','accounts'].includes(currentUser.role)) return STATE.notifications;
-  if(currentUser.role==='pm') return STATE.notifications.filter(n=>!n.prop||currentUser.assignedProps.includes(n.prop));
-  if(currentUser.role==='hk') return STATE.notifications.filter(n=>n.prop===currentUser.prop||n.by?.includes(currentUser.name));
-  if(currentUser.role==='student'){ const student=getCurrentStudent(); return student?STATE.notifications.filter(n=>n.prop===student.prop):[]; }
-  return STATE.notifications;
-}
-function getVisibleMessages(){ if(!currentUser) return []; if(currentUser.role==='pm') return STATE.messages.filter(m=>m.to===currentUser.name||m.from===currentUser.name); if(currentUser.role==='hk') return STATE.messages.filter(m=>m.to===currentUser.name||m.from===currentUser.name); return []; }
+window.addEventListener('DOMContentLoaded', () => {
+  updateCounts();
+});
 
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('show'));document.getElementById(id).classList.add('show');}
-function tryLogin(){const email=document.getElementById('login-email').value.trim().toLowerCase();const pass=document.getElementById('login-pass').value.trim();const err=document.getElementById('login-err');if(!email||!pass){err.style.display='block';err.textContent='Enter email and password, or use a demo role.';return;}err.style.display='none';const role=Object.keys(DEMO_USERS).find(r=>email.includes(r))||'director';demoLogin(role);}
-function demoLogin(role){const template=DEMO_USERS[role];if(!template) return;currentUser={...template};if(role==='pm'){const pm=getCurrentPm();currentUser.assignedProps=pm?.assignedProps||[];currentUser.assignedHks=STATE.hks.filter(h=>currentUser.assignedProps.includes(h.prop));}if(role==='hk'){const hk=getCurrentHk();currentUser.prop=hk?.prop;currentUser.assignedProps=[hk?.prop];}if(role==='student'){const student=getCurrentStudent();currentUser.prop=student?.prop;currentUser.room=student?.room;}setupApp();showScreen('s-app');}
-function doLogout(){currentUser=null;currentView='dashboard';showScreen('s-welcome');if(autoEventTimer){clearInterval(autoEventTimer);autoEventTimer=null;}}
-
-function setupApp(){const role=currentUser.role;document.getElementById('sb-avatar').innerHTML=currentUser.name?avatar(currentUser.name,38):avatar('User',38);document.getElementById('sb-name').textContent=currentUser.name||'User';const rolePill=document.getElementById('sb-rolepill');rolePill.className=`pill ${ROLE_BADGES[role]||'pn'}`;rolePill.textContent=ROLE_LABELS[role]||'User';document.getElementById('trigger-event-btn').style.display=['director','ops'].includes(role)?'flex':'none';buildNav(role);renderNotifs();showView('dashboard');if(!autoEventTimer){autoEventTimer=setInterval(()=>triggerEvent('auto'),42000);}}
-function buildNav(role){const nav=document.getElementById('sb-nav');nav.innerHTML='';const structure=[
-  {title:'Overview',items:[{id:'dashboard',label:'Dashboard',icon:'grid'},{id:'org',label:'Organisation',icon:'org'}]},
-  {title:'Operations',items:[
-    ...(role==='student'?[]:[{id:'properties',label: role==='hk'?'My Property':'Properties',icon:'home'}]),
-    ...(role==='director'||role==='ops'?[{id:'pms',label:'Portfolio Managers',icon:'users'}]:role==='pm'?[{id:'pms',label:'My Portfolio',icon:'users'}]:[]),
-    ...(role==='student'?[]:[{id:'maintenance',label:'Maintenance',icon:'tool'}]),
-    {id:'hkreports',label: role==='hk'?'HK Report':'HK Reports',icon:'clip'},
-    {id:'leases',label:'Leases',icon:'file'}
-  ]},
-  {title:'People',items:[
-    ...(role==='student'?[]:[{id:'students',label:'Students',icon:'users'}]),
-    ...(role==='accounts'||role==='director'||role==='ops'?[{id:'payments',label:'Payments & NSFAS',icon:'money'}]:[])
-  ]},
-  {title:'Portal',items:[{id:'portal',label:'Student Portal',icon:'door'}]}
-];const icons={grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',org:'<circle cx="9" cy="6" r="2"/><path d="M9 8v3"/><circle cx="5" cy="14" r="2"/><circle cx="13" cy="14" r="2"/><path d="M5 12v2M13 12v2M7 11h4"/>',home:'<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',users:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',tool:'<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>',clip:'<path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>' ,money:'<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>' ,file:'<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',door:'<path d="M3 3h10v18H3z"/><path d="M17 3h4v18h-4"/><line x1="13" y1="12" x2="13.01" y2="12"/>'
-  };
-  structure.forEach(section=>{
-    const group=document.createElement('div');group.className='sb-sec';group.textContent=section.title;nav.appendChild(group);
-    section.items.forEach(item=>{
-      const btn=document.createElement('button');
-      btn.className='sb-item'+(currentView===item.id?' active':'');
-      btn.id=`nav-${item.id}`;
-      btn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[item.icon]||''}</svg><span style="flex:1">${item.label}</span>`;
-      btn.onclick=()=>showView(item.id);
-      nav.appendChild(btn);
-    });
-  });
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
 }
 
-function showView(id){currentView=id;document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));const active=document.getElementById(`nav-${id}`);if(active)active.classList.add('active');document.getElementById('tb-title').textContent={dashboard:'Dashboard',org:'Organisation',properties:'Properties',pms:'Portfolio Managers',students:'Students',payments:'Payments',maintenance:'Maintenance',electricity:'Electricity',hkreports:'HK Reports',leases:'Leases',portal:'Student Portal'}[id]||'Dashboard';document.getElementById('app-content').innerHTML=`<div class="card" style="padding:26px;">${getView(id)}</div>`;window.scrollTo({top:0,behavior:'smooth'});}
+function demoLogin(role) {
+  currentUser = DEMO_USERS[role];
+  document.getElementById('sb-avatar').innerText = currentUser.name.split(' ').map(n=>n[0]).join('');
+  document.getElementById('sb-name').innerText = currentUser.name;
+  
+  const rolePill = document.getElementById('sb-rolepill');
+  rolePill.innerText = ROLE_LABELS[currentUser.role];
+  rolePill.className = `pill ${ROLE_BADGES[currentUser.role]}`;
+  
+  buildNavigation();
+  showScreen('s-app');
+  switchTab('dashboard');
+  renderAlerts();
+}
 
-function getView(id){
-  const role=currentUser.role;
-  const visibleProps=getVisibleProperties();
-  const visibleStudents=getVisibleStudents();
-  const visibleMaint=getVisibleMaintenance();
-  const totalStudents=STATE.students.length;
-  const nsfas=STATE.students.filter(s=>s.fund==='nsfas').length;
-  const overdue=STATE.students.filter(s=>!s.paid).length;
-  const openMaint=STATE.maintenance.filter(m=>m.status!=='fixed').length;
-  const critical=STATE.maintenance.filter(m=>m.urg==='critical' && m.status!=='fixed').length;
-  const pm=currentUser.role==='pm'?getCurrentPm():null;
-  const hk=currentUser.role==='hk'?getCurrentHk():null;
-  const student=currentUser.role==='student'?getCurrentStudent():null;
+function doLogout() {
+  currentUser = null;
+  showScreen('s-welcome');
+}
 
-  if(id==='dashboard'){
-    return `
-      <div class="ptitle">Good morning, ${currentUser.name}</div>
-      <div class="psub">${ROLE_LABELS[role]} overview for NestManager in Gqeberha · ${new Date().toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-      <div class="g4 mb18">
-        ${kpi('Properties',visibleProps.length,role==='pm'?'Assigned only':'Portfolio total','+8%','var(--orange)')}
-        ${kpi('Students',visibleStudents.length,`${nsfas} NSFAS · ${totalStudents-nsfas} private`,`${overdue} overdue`,'var(--blue)')}
-        ${kpi('Open issues',visibleMaint.filter(m=>m.status!=='fixed').length,`${critical} critical`,'','var(--red)')}
-        ${kpi('Active notifications',getVisibleNotifications().filter(n=>n.unread).length,'Live alerts in the notification panel','+2 this hour','var(--green)')}
-      </div>
-      <div class="g3 mb18">
-        <div class="card tracker-tile">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px">
-            <div><div class="section-pill">Live property pulse</div></div>
-            <button class="btn btn-ghost" style="font-size:12px;padding:8px 12px" onclick="showView('properties')">View all</button>
-          </div>
-          ${visibleProps.slice(0,4).map(p=>`<div class="lrow" style="padding:14px 0"><div style="width:46px;height:46px;border-radius:14px;background:rgba(37,120,235,.08);display:flex;align-items:center;justify-content:center;font-size:20px">🏠</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:var(--navy)">${p.name}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${p.area}, ${p.city}</div></div><div style="text-align:right">${pct(p.occ,p.rooms)}%<div style="font-size:12px;color:${pct(p.occ,p.rooms)>=85?'var(--green)':pct(p.occ,p.rooms)>=70?'var(--amber)':'var(--red)'}">${p.occ}/${p.rooms}</div></div></div>`).join('')}
-        </div>
-        <div class="card tracker-tile">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px">
-            <div><div class="section-pill">Incident centre</div></div>
-            <button class="btn btn-orange" style="font-size:12px;padding:8px 12px" onclick="triggerEvent('manual')">Raise event</button>
-          </div>
-          <div style="display:grid;gap:12px">
-            ${visibleMaint.slice(0,4).map(m=>`<div style="padding:14px;border-radius:18px;background:#fff;border:1px solid rgba(15,24,56,.06);box-shadow:var(--shadow-soft)">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="font-size:13px;font-weight:700;color:var(--navy)">${m.issue}</div><span class="pill ${m.urg==='critical'?'pr':m.urg==='urgent'?'pa':'pn'}">${m.urg}</span></div>
-              <div style="font-size:12px;color:var(--text3);margin-top:8px">${propName(m.prop)} · Room ${m.room}</div>
-            </div>`).join('')}
-          </div>
-        </div>
-        <div class="card tracker-tile">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px">
-            <div><div class="section-pill">Quick actions</div></div>
-            <button class="btn btn-outline" style="font-size:12px;padding:8px 12px" onclick="showView('maintenance')">Open maintenance</button>
-          </div>
-          <div style="display:grid;gap:12px">
-            ${['director','ops'].includes(role)?`<button class="btn btn-orange" style="width:100%;font-size:13px" onclick="showAddProperty()">+ Add new property</button>`:''}
-            ${['director','ops'].includes(role)?`<button class="btn btn-outline" style="width:100%;font-size:13px" onclick="showAddPM()">+ Add new PM</button>`:''}
-            ${role==='pm'?`<button class="btn btn-orange" style="width:100%;font-size:13px" onclick="showAddHK()">+ Add housekeeper</button>`:''}
-            ${role==='hk'?`<button class="btn btn-orange" style="width:100%;font-size:13px" onclick="showAddMaintenance()">+ Log maintenance</button>`:''}
-            ${role==='student'?`<button class="btn btn-orange" style="width:100%;font-size:13px" onclick="showStudentIssue()">+ Report an issue</button>`:''}
-          </div>
-        </div>
-      </div>
-      ${role==='pm'?`<div class="card mb18"><div class="card-hdr"><div class="ctitle">Portfolio communication</div><button class="btn btn-ghost" style="font-size:12px;padding:8px 12px" onclick="renderChat()">Refresh chat</button></div>${renderChatContent()}</div>`:''}
-      ${role==='student'?`<div class="card"><div class="card-hdr"><div class="ctitle">Your lease summary</div><span class="pill pb">NSFAS</span></div><div style="padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:18px">
-        <div style="background:rgba(37,120,235,.06);border-radius:18px;padding:20px;"><div style="font-size:13px;color:var(--text3);margin-bottom:10px">Property</div><div style="font-size:17px;font-weight:800;color:var(--navy)">${propName(student?.prop)}</div></div>
-        <div style="background:rgba(16,162,125,.08);border-radius:18px;padding:20px;"><div style="font-size:13px;color:var(--text3);margin-bottom:10px">Payment</div><div style="font-size:17px;font-weight:800;color:${student?.paid?'var(--green)':'var(--red)'}">${student?.paid?'Paid':'Overdue'}</div></div>
-        <div style="background:rgba(255,250,235,.9);border-radius:18px;padding:20px;"><div style="font-size:13px;color:var(--text3);margin-bottom:10px">Room</div><div style="font-size:17px;font-weight:800;color:var(--navy)">${student?.room}</div></div>
-        <div style="background:rgba(255,241,235,.95);border-radius:18px;padding:20px;"><div style="font-size:13px;color:var(--text3);margin-bottom:10px">Lease end</div><div style="font-size:17px;font-weight:800;color:var(--navy)">${student?.le}</div></div>
-      </div></div>`:''}
-    `;
+function updateCounts() {
+  document.getElementById('stat-props').innerText = STATE.properties.length;
+  document.getElementById('stat-rooms').innerText = STATE.properties.reduce((acc,p)=>acc+p.rooms,0);
+}
+
+function buildNavigation() {
+  const nav = document.getElementById('sb-nav');
+  nav.innerHTML = '';
+  
+  const r = currentUser.role;
+  
+  // Dashboard & Accommodations available to everyone, scoped down internally
+  addNavItem(nav, 'dashboard', 'Dashboard', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`);
+  addNavItem(nav, 'accommodations', 'Accommodations', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`);
+  
+  if (r === 'director' || r === 'ops') {
+    addNavItem(nav, 'pms', 'Portfolio Managers', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`);
+    addNavItem(nav, 'reports', 'Weekly HK Reports', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>`);
   }
-
-  if(id==='org'){
-    if(!['director','ops'].includes(role)) return `<div class="ptitle">Access restricted</div><div class="psub">Organisation details are only available to Directors and Ops Managers.</div>`;
-    return `
-      <div class="ptitle">Organisation</div>
-      <div class="psub">Structure and team accountability across NestManager.</div>
-      <div class="g2 mb18">
-        <div class="card"><div class="card-hdr"><div class="ctitle">Executive leadership</div></div><div style="padding:18px;display:grid;gap:12px">
-          ${['Ruvimbo Muringi · Director','Nosiphamandla Mgijima · Operations Manager'].map(person=>`<div style="padding:16px;border-radius:18px;background:rgba(15,24,56,.05)"><div style="font-size:14px;font-weight:700;color:var(--navy)">${person.split(' · ')[0]}</div><div style="font-size:12px;color:var(--text3);margin-top:6px">${person.split(' · ')[1]}</div></div>`).join('')}
-        </div></div>
-        <div class="card"><div class="card-hdr"><div class="ctitle">Portfolio leadership</div></div><div style="padding:18px;display:grid;gap:12px">
-          ${STATE.pms.map(pm=>`<div style="padding:16px;border-radius:18px;background:rgba(255,255,255,.9);border:1px solid rgba(37,120,235,.1)"><div style="font-size:14px;font-weight:700;color:var(--navy)">${pm.name}</div><div style="font-size:12px;color:var(--text3);margin-top:6px">${pm.assignedProps.length} properties</div>${pill('Portfolio Manager','po')}</div>`).join('')}
-        </div></div>
-      </div>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">Property oversight</div></div>
-        <div style="padding:18px" class="table-wrap">
-          <table><thead><tr><th>Property</th><th>Area</th><th>PM</th><th>HK</th><th>RA</th><th>Occupancy</th></tr></thead><tbody>
-            ${STATE.properties.map(p=>`<tr><td>${p.name}</td><td>${p.area}</td><td>${p.pm}</td><td>${p.hk}</td><td>${p.ra}</td><td>${pct(p.occ,p.rooms)}%</td></tr>`).join('')}
-          </tbody></table>
-        </div>
-      </div>
-    `;
+  
+  if (r === 'pm') {
+    addNavItem(nav, 'hks', 'Housekeepers Office', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`);
+    addNavItem(nav, 'comms', 'HK Communications', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`);
   }
-
-  if(id==='properties'){
-    const addButton=['director','ops'].includes(role)?`<button class="btn btn-orange" style="font-size:12px;padding:8px 14px" onclick="showAddProperty()">+ Add property</button>`:'';
-    return `
-      <div class="ptitle">Properties</div>
-      <div class="psub">${['director','ops'].includes(role)?'Create and manage all properties across the NestManager portfolio.':'View the locations and operational details for your assigned property.'}</div>
-      <div class="card"><div class="card-hdr"><div class="ctitle">${['director','ops'].includes(role)?'All properties':'Assigned properties'}</div>${addButton}</div>
-        <div style="padding:0 0 18px" class="table-wrap">
-          <table><thead><tr><th>Property</th><th>Area</th><th>PM</th><th>HK</th><th>Rooms</th><th>Occupancy</th><th>Rent</th><th>Actions</th></tr></thead><tbody>
-          ${visibleProps.map(p=>`<tr>
-            <td><strong>${p.name}</strong><div style="font-size:12px;color:var(--text3);margin-top:4px">${p.city}</div></td>
-            <td>${p.area}</td>
-            <td>${p.pm}</td>
-            <td>${p.hk}</td>
-            <td>${p.rooms}</td>
-            <td>${pct(p.occ,p.rooms)}%</td>
-            <td>R ${p.rent.toLocaleString()}</td>
-            <td>${['director','ops'].includes(role)?`<button class="btn btn-ghost" style="font-size:11px;padding:5px 8px;color:var(--red);border-color:rgba(220,38,38,.2)" onclick="confirmDeleteProperty('${p.id}')">Delete</button>`:'—'}</td>
-           </tr>`).join('')}
-          </tbody></table>
-        </div>
-      </div>
-    `;
+  
+  if (r === 'hk') {
+    addNavItem(nav, 'hk-ops', 'Housekeeper Core', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`);
+    addNavItem(nav, 'comms', 'Portfolio Comms', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`);
   }
+  
+  addNavItem(nav, 'maintenance', 'Maintenance Matrix', `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`);
+}
 
-  if(id==='pms'){
-    if(role==='pm'){
-      return `
-        <div class="ptitle">My Portfolio</div>
-        <div class="psub">Manage assigned properties, housekeepers and communication for your portfolio.</div>
-        <div class="g2 mb18">
-          ${kpi('Assigned properties',visibleProps.length,null,null,'var(--orange)')}
-          ${kpi('Housekeepers',STATE.hks.filter(h=>currentUser.assignedProps.includes(h.prop)).length,null,null,'var(--blue)')}
-          ${kpi('Open issues',getVisibleMaintenance().filter(m=>m.status!=='fixed').length,null,null,'var(--red)')}
-          ${kpi('Chat threads',getVisibleMessages().length,null,null,'var(--green)')}
-        </div>
-        <div class="card mb18">
-          <div class="card-hdr"><div class="ctitle">Properties assigned</div><button class="btn btn-outline" style="font-size:12px;padding:8px 14px" onclick="showAddHK()">+ Add HK</button></div>
-          <div style="padding:18px" class="table-wrap">
-            <table><thead><tr><th>Property</th><th>HK</th><th>RA</th><th>Rooms</th><th>Occupancy</th></tr></thead><tbody>
-            ${visibleProps.map(p=>`<tr><td>${p.name}</td><td>${p.hk}</td><td>${p.ra}</td><td>${p.rooms}</td><td>${pct(p.occ,p.rooms)}%</td></tr>`).join('')}
-            </tbody></table>
-          </div>
+function addNavItem(container, tab, label, icon) {
+  const btn = document.createElement('button');
+  btn.className = `sb-item ${activeTab === tab ? 'active' : ''}`;
+  btn.innerHTML = `${icon} <span style="margin-left:8px;">${label}</span>`;
+  btn.onclick = () => switchTab(tab);
+  container.appendChild(btn);
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  buildNavigation();
+  document.getElementById('tb-title').innerText = tab.charAt(0).toUpperCase() + tab.slice(1).replace('-', ' ');
+  renderContent();
+}
+
+function renderContent() {
+  const main = document.getElementById('app-content');
+  main.innerHTML = '';
+  
+  if (activeTab === 'dashboard') {
+    // KPI metrics matching localized architecture
+    let assignedProps = getScopedProperties();
+    let totalRooms = assignedProps.reduce((acc,p)=>acc+p.rooms, 0);
+    let totalOcc = assignedProps.reduce((acc,p)=>acc+p.occ, 0);
+    let openIncidents = STATE.maintenance.filter(m=>m.status === 'open' && assignedProps.some(p=>p.id===m.prop)).length;
+
+    main.innerHTML = `
+      <div class="mb22">
+        <h1 class="ptitle">Executive Terminal Overview</h1>
+        <p class="psub">Operational data matrix localized for Port Elizabeth student properties.</p>
+      </div>
+      <div class="g4 mb22">
+        <div class="kpi"><div class="kpi-bar po" style="background:var(--orange)"></div><div class="kpi-lbl">Managed Digs</div><div class="kpi-val">${assignedProps.length}</div><div class="kpi-sub">Active Footprint</div></div>
+        <div class="kpi"><div class="kpi-bar pg" style="background:var(--green)"></div><div class="kpi-lbl">Total Capacity</div><div class="kpi-val">${totalRooms}</div><div class="kpi-sub">Beds tracked</div></div>
+        <div class="kpi"><div class="kpi-bar pb" style="background:var(--blue)"></div><div class="kpi-lbl">Occupancy Ratio</div><div class="kpi-val">${totalRooms ? Math.round((totalOcc/totalRooms)*100) : 0}%</div><div class="kpi-sub">${totalOcc} Filled Units</div></div>
+        <div class="kpi"><div class="kpi-bar pr" style="background:var(--red)"></div><div class="kpi-lbl">Open Incidents</div><div class="kpi-val">${openIncidents}</div><div class="kpi-sub">Awaiting Dispatch</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-hdr"><h3 class="ctitle">Regional Portfolio Distribution</h3></div>
+          <div style="padding:20px;" id="dash-prop-list"></div>
         </div>
         <div class="card">
-          <div class="card-hdr"><div class="ctitle">Operational chat</div></div>
-          ${renderChatContent(true)}
+          <div class="card-hdr"><h3 class="ctitle">Live Infrastructure Log</h3></div>
+          <div style="padding:20px;" id="dash-maint-list"></div>
+        </div>
+      </div>
+    `;
+    
+    const pList = document.getElementById('dash-prop-list');
+    assignedProps.forEach(p => {
+      pList.innerHTML += `
+        <div class="lrow">
+          <div style="flex:1;">
+            <div style="font-weight:700; font-size:14px; color:var(--navy);">${p.name}</div>
+            <div style="font-size:12px; color:var(--text3); margin-top:2px;">${p.area} · Gqeberha</div>
+          </div>
+          <span class="pill pb">${p.occ}/${p.rooms} Beds</span>
         </div>
       `;
-    }
-    if(!['director','ops'].includes(role)) return `<div class="ptitle">Access restricted</div><div class="psub">Portfolio manager tools are only available to senior users and PMs.</div>`;
-    return `
-      <div class="ptitle">Portfolio Managers</div>
-      <div class="psub">Add, edit and assign properties to Portfolio Managers with explicit assignment controls.</div>
-      <div style="display:flex;justify-content:flex-end;margin-bottom:18px"><button class="btn btn-orange" style="font-size:12px;padding:8px 14px" onclick="showAddPM()">+ Add PM</button></div>
-      ${STATE.pms.map(pm=>`
-        <div class="card mb14">
-          <div class="card-hdr">
-            <div>
-              <div class="ctitle">${pm.name}</div>
-              <div style="font-size:12px;color:var(--text3);margin-top:6px">${pm.assignedProps.length} properties assigned</div>
-            </div>
-            <div style="display:flex;gap:10px">
-              <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px" onclick="showAddPM('${pm.id}')">Edit</button>
-            </div>
+    });
+    
+    const mList = document.getElementById('dash-maint-list');
+    let scopedMaint = STATE.maintenance.filter(m => assignedProps.some(p => p.id === m.prop));
+    if(scopedMaint.length === 0) mList.innerHTML = `<p style="font-size:13px; color:var(--text3)">No critical events logged across linked properties.</p>`;
+    scopedMaint.slice(0,4).forEach(m => {
+      let pObj = STATE.properties.find(p=>p.id === m.prop);
+      mList.innerHTML += `
+        <div class="lrow">
+          <div style="flex:1;">
+            <div style="font-weight:600; font-size:13px;">${m.issue} (Rm ${m.room})</div>
+            <div style="font-size:12px; color:var(--text3);">${pObj ? pObj.name : ''}</div>
           </div>
-          <div style="padding:18px">
-            <div class="g3">${pm.assignedProps.map(pid=>{const p=STATE.properties.find(x=>x.id===pid);return p?`<div style="background:rgba(255,255,255,.92);border-radius:16px;padding:14px;border:1px solid rgba(37,120,235,.1)"><div style="font-size:13px;font-weight:700;color:var(--navy)">${p.name}</div><div style="font-size:11px;color:var(--text3);margin-top:6px">${p.area}</div></div>`:''}).join('')}</div>
-          </div>
-        </div>`).join('')}
-    `;
-  }
-
-  if(id==='students'){
-    if(role==='student') return `<div class="ptitle">Student records are available in the Student Portal.</div><div class="psub">Use the Student Portal to review your lease, payment status and property details.</div>`;
-    return `
-      <div class="ptitle">Students</div>
-      <div class="psub">All student records, lease details and payment flags for your accessible portfolio.</div>
-      <div class="card mb18">
-        <div class="card-hdr"><div class="ctitle">Student snapshot</div></div>
-        <div style="padding:18px" class="g4">
-          ${kpi('Total students',visibleStudents.length,null,null,'var(--blue)')}
-          ${kpi('NSFAS students',visibleStudents.filter(s=>s.fund==='nsfas').length,null,null,'var(--green)')}
-          ${kpi('Overdue rent',visibleStudents.filter(s=>!s.paid).length,null,null,'var(--red)')}
-          ${kpi('Active lease',visibleStudents.filter(s=>new Date(s.le)>new Date()).length,null,null,'var(--gold)')}
+          <span class="pill ${m.urg === 'critical'?'pr':'pa'}">${m.status}</span>
         </div>
+      `;
+    });
+  }
+  
+  if (activeTab === 'accommodations') {
+    let props = getScopedProperties();
+    let actionsHtml = (currentUser.role === 'director' || currentUser.role === 'ops') 
+      ? `<button class="btn btn-navy" onclick="openAddPropertyModal()">+ Manual Accommodation Setup</button>` : '';
+      
+    main.innerHTML = `
+      <div class="card-hdr mb18" style="padding:0; border:none; background:transparent;">
+        <div>
+          <h1 class="ptitle">Accommodation Ecosystem</h1>
+          <p class="psub">Manual configuration terminal for corporate digs units.</p>
+        </div>
+        ${actionsHtml}
       </div>
       <div class="card">
-        <div class="card-hdr"><div class="ctitle">Student ledger</div></div>
-        <div style="padding:18px" class="table-wrap">
-          <table><thead><tr><th>Name</th><th>Property</th><th>Room</th><th>Funding</th><th>Lease</th><th>Rent</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-            ${visibleStudents.map(s=>`<tr>
-              <td>${s.name}</td>
-              <td>${propName(s.prop)}</td>
-              <td>${s.room}</td>
-              <td>${pill(s.fund.toUpperCase(),s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn')}</td>
-              <td>${s.ls} → ${s.le}</td>
-              <td>R ${s.rent.toLocaleString()}</td>
-              <td>${pill(s.paid?'Paid':'Overdue',s.paid?'pg':'pr')}</td>
-              <td>${['director','ops','accounts'].includes(role)?`<button class="btn btn-ghost" style="font-size:11px;padding:5px 8px" onclick="showStudentDetails('${s.id}')">View</button>`:'—'}</td>
-            </tr>`).join('')}
-          </tbody></table>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Property Identity</th>
+                <th>Suburban Cluster</th>
+                <th>Beds Filled</th>
+                <th>Linked Portfolio Manager</th>
+                <th>Base Asset Rent</th>
+                <th>Sponsorship Channels</th>
+                ${(currentUser.role==='director'||currentUser.role==='ops')?'<th>Actions</th>':''}
+              </tr>
+            </thead>
+            <tbody id="props-table-body"></tbody>
+          </table>
         </div>
       </div>
     `;
+    
+    const tbody = document.getElementById('props-table-body');
+    props.forEach(p => {
+      let pmObj = STATE.pms.find(pm => pm.id === p.pmId);
+      let row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${p.name}</strong></td>
+        <td><span class="pill pn">${p.area}</span></td>
+        <td>${p.occ} / ${p.rooms} Capacity</td>
+        <td>${pmObj ? pmObj.name : '<em style="color:var(--text3)">Unassigned</em>'}</td>
+        <td>R ${p.rent} /mo</td>
+        <td><span class="pill ${p.nsfas?'pg':'pa'}">${p.nsfas?'NSFAS Verified':'Private Asset'}</span></td>
+        ${(currentUser.role==='director'||currentUser.role==='ops')?`<td><button class="btn-danger" onclick="deleteProperty('${p.id}')">Purge</button></td>`:''}
+      `;
+      tbody.appendChild(row);
+    });
   }
-
-  if(id==='payments'){
-    if(!['director','ops','accounts'].includes(role)) return `<div class="ptitle">Access restricted</div><div class="psub">Payments & NSFAS management is reserved for Finance, Ops and Directors.</div>`;
-    const outstanding=visibleStudents.filter(s=>!s.paid).length;
-    return `
-      <div class="ptitle">Payments & NSFAS</div>
-      <div class="psub">Track current rent collections, NSFAS funding and overdue payments.</div>
-      <div class="g4 mb18">
-        ${kpi('NSFAS students',visibleStudents.filter(s=>s.fund==='nsfas').length,null,null,'var(--green)')}
-        ${kpi('Private students',visibleStudents.filter(s=>s.fund==='private').length,null,null,'var(--blue)')}
-        ${kpi('Bursary cases',visibleStudents.filter(s=>s.fund==='bursary').length,null,null,'var(--gold)')}
-        ${kpi('Overdue',outstanding,`${outstanding} need follow-up`,outstanding>0?`+${outstanding}`:'All current','var(--red)')}
+  
+  if (activeTab === 'pms') {
+    main.innerHTML = `
+      <div class="card-hdr mb18" style="padding:0; border:none; background:transparent;">
+        <div>
+          <h1 class="ptitle">Portfolio Architecture Node</h1>
+          <p class="psub">Deploy structural managers and allocate properties control zones manually.</p>
+        </div>
+        <button class="btn btn-navy" onclick="openAddPmModal()">+ Provision Portfolio Manager</button>
       </div>
       <div class="card">
-        <div class="card-hdr"><div class="ctitle">Payment tracker</div><button class="btn btn-orange" style="font-size:12px;padding:8px 14px" onclick="showPaymentModal()">+ Record payment</button></div>
-        <div style="padding:18px" class="table-wrap">
-          <table><thead><tr><th>Student</th><th>Property</th><th>Funding</th><th>Lease</th><th>Rent</th><th>Status</th></tr></thead><tbody>
-            ${visibleStudents.map(s=>`<tr>
-              <td>${s.name}</td><td>${propName(s.prop)}</td><td>${pill(s.fund.toUpperCase(),s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn')}</td><td>${s.ls} → ${s.le}</td><td>R ${s.rent.toLocaleString()}</td><td>${pill(s.paid?'Paid':'Pending',s.paid?'pg':'pr')}</td>
-            </tr>`).join('')}
-          </tbody></table>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Manager Profile</th>
+                <th>Secure Portal Communication Address</th>
+                <th>Assigned Infrastructure Assets</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pms-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    const tbody = document.getElementById('pms-table-body');
+    STATE.pms.forEach(pm => {
+      let linkedProps = STATE.properties.filter(p => p.pmId === pm.id).map(p=>p.name).join(', ') || 'No assets bound';
+      let row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${pm.name}</strong></td>
+        <td><code>${pm.email}</code></td>
+        <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis;">${linkedProps}</td>
+        <td><button class="btn-danger" onclick="deletePm('${pm.id}')">De-provision Node</button></td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  if (activeTab === 'reports') {
+    main.innerHTML = `
+      <div class="mb18">
+        <h1 class="ptitle">Housekeeper Report Control System</h1>
+        <p class="psub">Review operational data logs directly transmitted from site teams.</p>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Reporting Officer</th>
+                <th>Target Digs</th>
+                <th>Week Ending Block</th>
+                <th>Transmission Text Summary</th>
+                <th>Validation Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${STATE.reports.map(rep => {
+                let hkName = STATE.hks.find(h=>h.id===rep.hkId)?.name || 'Unknown';
+                let propName = STATE.properties.find(p=>p.id===rep.propId)?.name || 'Unknown';
+                return `<tr>
+                  <td><strong>${hkName}</strong></td>
+                  <td>${propName}</td>
+                  <td><code>${rep.weekEnding}</code></td>
+                  <td>${rep.text}</td>
+                  <td><span class="pill ${rep.status==='Approved'?'pg':'pa'}">${rep.status}</span></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
         </div>
       </div>
     `;
   }
-
-  if(id==='maintenance'){
-    if(role==='student') return `
-      <div class="ptitle">Student maintenance</div>
-      <div class="psub">Submit a room or building issue directly to your property team.</div>
-      <button class="btn btn-orange" style="margin-bottom:18px" onclick="showStudentIssue()">Report issue</button>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">Your open tickets</div></div>
-        <div style="padding:18px">${getVisibleMaintenance().length?getVisibleMaintenance().map(m=>`<div style="padding:14px 0;border-bottom:1px solid rgba(15,24,56,.06)"><div style="font-weight:700">${m.issue}</div><div style="font-size:12px;color:var(--text3);margin:6px 0">${propName(m.prop)} · Room ${m.room}</div>${pill(m.status.replace('_',' '),m.status==='fixed'?'pg':m.status==='in_progress'?'pa':'pr')}</div>`).join(''):`<div style="color:var(--text3)">No maintenance issues logged yet.</div>`}</div>
-      </div>`;
-    if(role==='hk') return `
-      <div class="ptitle">Housekeeper tools</div>
-      <div class="psub">Log maintenance, complete daily checklists and submit weekly HK reports.</div>
-      <div class="g2 mb18">
-        ${kpi('Open issues',visibleMaint.filter(m=>m.status!=='fixed').length,null,null,'var(--red)')}
-        ${kpi('Checklists',4,'Daily hygiene rounds','Updated today','var(--blue)')}
-      </div>
-      <button class="btn btn-orange" style="margin-bottom:18px" onclick="showAddMaintenance()">+ Log maintenance</button>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">Daily checklist</div></div>
-        <div style="padding:18px">
-          ${['Rooms tidy','Bathrooms clean','Waste removed','Safety checks complete'].map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(15,24,56,.06)"><span>${q}</span><span>${pill('Yes','pg')}</span></div>`).join('')}
-          <button class="btn btn-ghost" style="margin-top:16px" onclick="toast('Daily checklist submitted','success')">Submit daily log</button>
+  
+  if (activeTab === 'hks') {
+    let props = getScopedProperties();
+    main.innerHTML = `
+      <div class="card-hdr mb18" style="padding:0; border:none; background:transparent;">
+        <div>
+          <h1 class="ptitle">Housekeeping Staff Control Grid</h1>
+          <p class="psub">Provision site maintenance assets and assign cleaners for your specific properties.</p>
         </div>
-      </div>`;
-    return `
-      <div class="ptitle">Maintenance</div>
-      <div class="psub">Full maintenance log, incident triage and resolution across your properties.</div>
-      <button class="btn btn-orange" style="margin-bottom:18px" onclick="showAddMaintenance()">+ Log issue</button>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">All maintenance</div></div>
-        <div style="padding:18px" class="table-wrap">
-          <table><thead><tr><th>Issue</th><th>Property</th><th>Room</th><th>Reported by</th><th>Date</th><th>Urgency</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-            ${visibleMaint.map(m=>`<tr>
-              <td>${m.issue}</td><td>${propName(m.prop)}</td><td>${m.room}</td><td>${m.by}</td><td>${m.date}</td><td>${pill(m.urg,m.urg==='critical'?'pr':m.urg==='urgent'?'pa':'pn')}</td><td>${pill(m.status.replace('_',' '),m.status==='fixed'?'pg':m.status==='in_progress'?'pa':'pr')}</td>
-              <td>${m.status!=='fixed'?`<button class="btn btn-ghost" style="font-size:11px;padding:5px 8px" onclick="updateMaintenanceStatus('${m.id}','fixed')">Mark fixed</button>`:'—'}</td>
-            </tr>`).join('')}
-          </tbody></table>
-        </div>
-      </div>`;
-  }
-
-  if(id==='electricity'){
-    if(!['director','ops','accounts','pm','hk'].includes(role)) return `<div class="ptitle">Access restricted</div><div class="psub">Electricity tracking is available to operational roles.</div>`;
-    return `
-      <div class="ptitle">Electricity tracker</div>
-      <div class="psub">Monitor prepaid units, top-ups and low-balance alerts by room.</div>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">Room electricity</div></div>
-        <div style="padding:18px" class="table-wrap">
-          <table><thead><tr><th>Room</th><th>Student</th><th>Units</th><th>Last top-up</th><th>Status</th><th>Action</th></tr></thead><tbody>
-            ${STATE.electricity.map(e=>`<tr>
-              <td>${e.room}</td><td>${e.student}</td>
-              <td>${e.units}</td><td>${e.last}</td>
-              <td>${pill(e.units<=20?'Critical':e.units<=50?'Moderate':'Healthy',e.units<=20?'pr':e.units<=50?'pa':'pg')}</td>
-              <td><button class="btn ${e.units<=20?'btn-orange':'btn-ghost'}" style="font-size:11px;padding:5px 10px" onclick="showTopUp('${e.id}')">Top up</button></td>
-            </tr>`).join('')}
-          </tbody></table>
-        </div>
-      </div>`;
-  }
-
-  if(id==='hkreports'){
-    if(role==='hk'){
-      return `
-        <div class="ptitle">Submit weekly report</div>
-        <div class="psub">Report for your property and handover to your Portfolio Manager.</div>
-        <div class="card">
-          <div class="card-hdr"><div class="ctitle">Weekly HK report</div></div>
-          <div style="padding:22px">
-            <div class="g2" style="margin-bottom:18px">
-              <div><label class="lbl">Property</label><input class="inp" value="${propName(currentUser.prop)}" readonly></div>
-              <div><label class="lbl">Report date</label><input class="inp" type="date" value="${new Date().toISOString().split('T')[0]}"></div>
-            </div>
-            <div style="margin-bottom:18px">
-              <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">Cleaning checklist</div>
-              ${['Communal areas clean','Bathrooms sanitized','Rooms inspected','Waste bins emptied'].map(q=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(15,24,56,.06)"><span>${q}</span><select class="inp" style="width:120px"><option>Yes</option><option>No</option></select></div>`).join('')}
-            </div>
-            <div style="margin-bottom:18px"><label class="lbl">Notes</label><textarea class="inp" rows="4" placeholder="Add any observations..."></textarea></div>
-            <div style="display:flex;gap:12px"><button class="btn btn-outline" style="flex:1" onclick="toast('Draft saved','success')">Save draft</button><button class="btn btn-orange" style="flex:1" onclick="toast('Report submitted to PM','success')">Submit report</button></div>
-          </div>
-        </div>`;
-    }
-    return `
-      <div class="ptitle">HK Reports</div>
-      <div class="psub">Review weekly submissions and remind your HK team.</div>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">Report status</div><button class="btn btn-ghost" style="font-size:12px;padding:8px 14px" onclick="toast('Reminder sent','success')">Send reminder</button></div>
-        <div style="padding:18px">${[
-          {name:'Suburban Strand',hk:'Thabo M.',status:'submitted'},
-          {name:'Humewood Residence',hk:'Nomsa D.',status:'submitted'},
-          {name:'Central Quarters',hk:'Lebo T.',status:'submitted'},
-          {name:'Mill Park Lodge',hk:'Sipho N.',status:'overdue'},
-          {name:'Bayview House',hk:'Zanele M.',status:'pending'}
-        ].map(r=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(15,24,56,.06)"><div><div style="font-weight:700">${r.name}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">HK: ${r.hk}</div></div>${pill(r.status,r.status==='submitted'?'pg':r.status==='pending'?'pa':'pr')}</div>`).join('')}</div>
-      </div>`;
-  }
-
-  if(id==='leases'){
-    return `
-      <div class="ptitle">Leases</div>
-      <div class="psub">Digital lease management, QR applications and active student agreements.</div>
-      <div class="card mb18">
-        <div class="card-hdr"><div class="ctitle">QR lease capture</div><button class="btn btn-orange" style="font-size:12px;padding:8px 14px" onclick="openQR()">Generate QR</button></div>
-        <div style="padding:18px">Create a QR code for each property and let students apply directly from their phone.</div>
+        <button class="btn btn-navy" onclick="openAddHkModal()">+ Deploy New Housekeeper</button>
       </div>
       <div class="card">
-        <div class="card-hdr"><div class="ctitle">Active leases</div></div>
-        <div style="padding:18px" class="table-wrap">
-          <table><thead><tr><th>Student</th><th>Property</th><th>Room</th><th>Funding</th><th>Lease</th><th>Status</th></tr></thead><tbody>
-            ${visibleStudents.map(s=>`<tr><td>${s.name}</td><td>${propName(s.prop)}</td><td>${s.room}</td><td>${pill(s.fund.toUpperCase(),s.fund==='nsfas'?'pb':s.fund==='bursary'?'pgo':'pn')}</td><td>${s.ls} → ${s.le}</td><td>${pill('Active','pg')}</td></tr>`).join('')}
-          </tbody></table>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Officer Name</th>
+                <th>Assigned Infrastructure Base</th>
+                <th>Operational Integrity Level</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${STATE.hks.filter(h => props.some(p=>p.id === h.prop)).map(h => {
+                let pName = STATE.properties.find(p=>p.id===h.prop)?.name || 'Unlinked';
+                return `<tr>
+                  <td><strong>${h.name}</strong></td>
+                  <td>${pName}</td>
+                  <td><span class="pill pg">Active Deployment</span></td>
+                  <td><button class="btn-danger" onclick="deleteHk('${h.id}')">Revoke Clearance</button></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
         </div>
-      </div>`;
+      </div>
+    `;
   }
-
-  if(id==='portal'){
-    if(role==='student'){
-      return `
-        <div class="ptitle">Student Portal</div>
-        <div class="psub">Your digital residence hub for lease details, payments and maintenance requests.</div>
-        <div class="g2 mb18">
-          <div class="card" style="padding:22px"><div style="font-size:12px;color:var(--text3);margin-bottom:10px">Lease</div><div style="font-size:22px;font-weight:800;color:var(--navy)">${student?.ls} → ${student?.le}</div></div>
-          <div class="card" style="padding:22px"><div style="font-size:12px;color:var(--text3);margin-bottom:10px">Payment status</div><div style="font-size:22px;font-weight:800;color:${student?.paid?'var(--green)':'var(--red)'}">${student?.paid?'Paid':'Overdue'}</div></div>
-        </div>
-        <div class="card mb18">
-          <div class="card-hdr"><div class="ctitle">Your room</div></div>
-          <div style="padding:22px">
-            <div style="font-size:18px;font-weight:700">${propName(student?.prop)}</div>
-            <div style="font-size:13px;color:var(--text3);margin:10px 0">Room ${student?.room} · ${student?.fund.toUpperCase()} funding</div>
-            <button class="btn btn-orange" onclick="showStudentIssue()">Report a room issue</button>
+  
+  if (activeTab === 'comms') {
+    main.innerHTML = `
+      <div class="mb18">
+        <h1 class="ptitle">Integrated Node Messenger Node</h1>
+        <p class="psub">Secure encryption pipeline link between Portfolio Managers and Housekeeper stations.</p>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div class="chat-box">
+          <div class="chat-messages" id="chat-msg-win"></div>
+          <div class="chat-input">
+            <textarea id="chat-raw-input" placeholder="Type direct operational transmission wire response..."></textarea>
+            <button class="btn btn-orange" onclick="sendDirectMessage()">Transmit Wire</button>
           </div>
         </div>
-        <div class="card"><div class="card-hdr"><div class="ctitle">Housing support</div></div><div style="padding:22px">Use this portal to view your current lease, submit maintenance requests and track live alerts for your property.</div></div>`;
-    }
-    return `
-      <div class="ptitle">Student Portal</div>
-      <div class="psub">A sample student-facing listing portal for property applications in Gqeberha.</div>
-      <div class="card">
-        <div class="card-hdr"><div class="ctitle">Available rooms</div></div>
-        <div style="padding:18px" class="g3">
-          ${STATE.properties.map(p=>`<div style="background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow-soft);transition:transform .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
-            <div style="font-size:14px;font-weight:700;color:var(--navy)">${p.name}</div>
-            <div style="font-size:12px;color:var(--text3);margin:10px 0">${p.area} · ${p.city}</div>
-            <div style="font-size:18px;font-weight:800;color:var(--orange)">R ${p.rent.toLocaleString()}/mo</div>
-            <button class="btn btn-outline" style="margin-top:14px;width:100%;font-size:12px" onclick="openQR()">Apply now</button>
-          </div>`).join('')}
-        </div>
-      </div>`;
+      </div>
+    `;
+    renderChatWindow();
   }
-
-  return `<div class="ptitle">Coming soon</div><div class="psub">This workspace is being prepared for your role.</div>`;
+  
+  if (activeTab === 'hk-ops') {
+    let linkedProp = STATE.properties.find(p => p.hkId === currentUser.id);
+    main.innerHTML = `
+      <div class="mb18">
+        <h1 class="ptitle">Housekeeper Station Console</h1>
+        <p class="psub">Assigned Hub Base: <strong>${linkedProp ? linkedProp.name : 'No property linked'}</strong></p>
+      </div>
+      <div class="g2">
+        <div class="card" style="padding:20px;">
+          <h3 class="ctitle mb14">Submit Weekly Progress Ledger</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div><label class="lbl">Report Message Box</label><textarea class="inp" id="hk-rep-txt" style="min-height:90px;" placeholder="Describe infrastructure state, room metrics..."></textarea></div>
+            <button class="btn btn-navy" onclick="submitHkReport()">File Structural Report</button>
+          </div>
+        </div>
+        <div class="card" style="padding:20px;">
+          <h3 class="ctitle mb14">Instant Room Maintenance Pipeline</h3>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div class="g2">
+              <div><label class="lbl">Room Index</label><input class="inp" id="hk-maint-room" placeholder="e.g. 104"></div>
+              <div><label class="lbl">Severity Level</label><select class="inp" id="hk-maint-urg"><option value="normal">Normal Priority</option><option value="urgent">Urgent</option><option value="critical">Critical Outage</option></select></div>
+            </div>
+            <div><label class="lbl">Infrastructure Fault Description</label><input class="inp" id="hk-maint-issue" placeholder="e.g. Geyser failure, structural pipe line crack"></div>
+            <button class="btn btn-orange" onclick="submitHkMaint()">Log Fault Directive</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  if (activeTab === 'maintenance') {
+    let scopedProps = getScopedProperties();
+    let filteredMaint = STATE.maintenance.filter(m => scopedProps.some(p=>p.id === m.prop));
+    
+    main.innerHTML = `
+      <div class="mb18">
+        <h1 class="ptitle">Maintenance Asset Grid</h1>
+        <p class="psub">Active engineering dispatches and plumbing reports tracking infrastructure faults.</p>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Property Location</th>
+                <th>Unit Index</th>
+                <th>Fault Classification Log</th>
+                <th>Log Date</th>
+                <th>Severity Class</th>
+                <th>Status Pipeline</th>
+                ${(currentUser.role === 'director' || currentUser.role === 'ops' || currentUser.role === 'pm') ? '<th>Actions</th>' : ''}
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredMaint.map(m => {
+                let pObj = STATE.properties.find(p=>p.id===m.prop);
+                return `<tr class="${m.status === 'open' && m.urg === 'critical' ? 'incident-card' : ''}">
+                  <td><strong>${pObj ? pObj.name : 'Unknown Base'}</strong></td>
+                  <td>Room ${m.room}</td>
+                  <td>${m.issue}</td>
+                  <td><code>${m.date}</code></td>
+                  <td><span class="pill ${m.urg==='critical'?'pr': m.urg==='urgent'?'po':'pb'}">${m.urg}</span></td>
+                  <td><span class="pill ${m.status==='open'?'pa':'pg'}">${m.status.toUpperCase()}</span></td>
+                  ${(currentUser.role==='director'||currentUser.role==='ops'||currentUser.role==='pm') ? `<td>
+                    ${m.status==='open'?`<button class="btn btn-ghost" style="padding:4px 8px; font-size:11px" onclick="resolveMaint('${m.id}')">Mark Fixed</button>`:'<span style="color:var(--green); font-size:11px;">Resolved</span>'}
+                  </td>`:''}
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
 }
 
-function renderNotifs(){const list=document.getElementById('notif-list');const notes=getVisibleNotifications();list.innerHTML=notes.map(n=>`
-  <div class="notif-tile" onclick="markRead(${n.id})">
-    <div class="notif-dot"></div>
-    <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px">${n.msg}</div><div style="font-size:12px;color:var(--text3)">${n.time}</div></div>
-  </div>`).join('');const unread=notes.filter(n=>n.unread).length;document.getElementById('notif-count').textContent=unread;document.getElementById('notif-pill').textContent=`${unread} new`;document.getElementById('notif-count').style.display=unread?'inline-flex':'none';document.getElementById('tb-notif-dot').style.display=unread?'block':'none';}
-function toggleNotif(){document.getElementById('notif-panel').classList.toggle('open');}
-function markRead(id){STATE.notifications=STATE.notifications.map(n=>n.id===id?{...n,unread:false}:n);renderNotifs();}
-function markAllRead(){STATE.notifications=STATE.notifications.map(n=>({...n,unread:false}));renderNotifs();}
+function getScopedProperties() {
+  if (currentUser.role === 'director' || currentUser.role === 'ops') return STATE.properties;
+  if (currentUser.role === 'pm') return STATE.properties.filter(p => p.pmId === currentUser.id);
+  if (currentUser.role === 'hk') return STATE.properties.filter(p => p.hkId === currentUser.id);
+  if (currentUser.role === 'student') return STATE.properties.filter(p => STATE.students.find(s=>s.id===currentUser.id).prop === p.id);
+  return [];
+}
 
-function toast(message,type='success'){const t=document.createElement('div');t.style.cssText=`position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:${type==='success'?'#10A27D':type==='error'?'#DC2626':'#0C1A34'};color:#fff;padding:14px 22px;border-radius:16px;box-shadow:0 20px 60px rgba(15,24,56,.22);font-weight:700;z-index:999;animation:fadeUp .25s ease`;t.textContent=message;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
-function openModal(html){document.getElementById('modal-box').innerHTML=html;document.getElementById('modal-bg').classList.add('open');}
-function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+// Modal Toggle Utility Engine
+function openModal(contentHtml) {
+  const bg = document.getElementById('modal-bg');
+  const box = document.getElementById('modal-box');
+  box.innerHTML = contentHtml;
+  bg.classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('open');
+}
 
-function showAddProperty(){if(!['director','ops'].includes(currentUser.role)) return;openModal(`
-  <div class="modal-title">Add new property</div>
-  <div class="modal-sub">Create a new accommodation and assign it to a portfolio manager.</div>
-  <div style="display:grid;gap:14px">
-    <div><label class="lbl">Property name</label><input class="inp" id="np-name" placeholder="e.g. Summerstrand Digs"></div>
-    <div class="g2">
-      <div><label class="lbl">Suburb</label><input class="inp" id="np-area" placeholder="Summerstrand"></div>
-      <div><label class="lbl">City</label><input class="inp" id="np-city" value="Gqeberha"></div>
+// PM CRUD Operational Nodes
+function openAddPmModal() {
+  let propertyOptions = STATE.properties.map(p => `
+    <label class="checkbox-chip">
+      <input type="checkbox" name="pm-props" value="${p.id}">
+      <span>${p.name} (${p.area})</span>
+    </label>
+  `).join('');
+  
+  openModal(`
+    <h2 class="modal-title">Provision New Portfolio Manager</h2>
+    <p class="modal-sub">Create access nodes and systematically bind property matrix areas manually.</p>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div><label class="lbl">Full Professional Name</label><input class="inp" id="new-pm-name" placeholder="e.g. Blessing Mgwali"></div>
+      <div><label class="lbl">Corporate Email Authentication Address</label><input class="inp" id="new-pm-email" type="email" placeholder="blessing@nestmanager.app"></div>
+      <div>
+        <label class="lbl">Manually Assign Assets Control Zone</label>
+        <div class="checkbox-grid">${propertyOptions}</div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:14px;">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel Matrix</button>
+        <button class="btn btn-navy" onclick="executeAddPm()">Deploy PM Node</button>
+      </div>
     </div>
-    <div class="g2">
-      <div><label class="lbl">Total rooms</label><input class="inp" id="np-rooms" type="number" min="1" placeholder="20"></div>
-      <div><label class="lbl">Monthly rent</label><input class="inp" id="np-rent" type="number" min="1000" placeholder="3900"></div>
-    </div>
-    <div class="g2">
-      <div><label class="lbl">Portfolio manager</label><select class="inp" id="np-pm">${STATE.pms.map(pm=>`<option value="${pm.id}">${pm.name}</option>`).join('')}</select></div>
-      <div><label class="lbl">Housekeeper</label><input class="inp" id="np-hk" placeholder="e.g. Sipho N."></div>
-    </div>
-    <div class="g2">
-      <div><label class="lbl">Resident assistant</label><input class="inp" id="np-ra" placeholder="e.g. Lungile M."></div>
-      <div style="padding-top:26px"><label><input type="checkbox" id="np-nsfas" checked style="accent-color:var(--orange)"> NSFAS accredited</label></div>
-    </div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-orange" style="flex:1" onclick="saveProperty()">Add property</button>
-  </div>
-`);}
-function saveProperty(){const name=document.getElementById('np-name').value.trim();const area=document.getElementById('np-area').value.trim();const city=document.getElementById('np-city').value.trim();const rooms=parseInt(document.getElementById('np-rooms').value)||0;const rent=parseInt(document.getElementById('np-rent').value)||0;const pmId=document.getElementById('np-pm').value;const hk=document.getElementById('np-hk').value.trim()||'TBA';const ra=document.getElementById('np-ra').value.trim()||'TBA';const nsfas=document.getElementById('np-nsfas').checked;if(!name||!area||!rooms||!rent){toast('Complete all required fields','error');return;}const pm=STATE.pms.find(x=>x.id===pmId);const id='p'+Date.now();STATE.properties.push({id,name,area,city,rooms,occ:0,pm:pm?.name||'Unassigned',pmId, hk,ra,rent,nsfas});if(pm && !pm.assignedProps.includes(id)) pm.assignedProps.push(id);STATE.notifications.unshift({id:Date.now(),type:'general',msg:`🏠 New property added: ${name}`,time:'Just now',unread:true,prop:id});closeModal();toast('Property added successfully');showView('properties');renderNotifs();}
-function confirmDeleteProperty(id){const prop=STATE.properties.find(p=>p.id===id);openModal(`
-  <div class="modal-title">Delete property</div>
-  <div class="modal-sub">This will remove ${prop.name} from the portfolio and unlink related student records.</div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn" style="flex:1;background:var(--red);color:#fff" onclick="deleteProperty('${id}')">Delete</button>
-  </div>
-`);}
-function deleteProperty(id){const prop=STATE.properties.find(p=>p.id===id);STATE.properties=STATE.properties.filter(p=>p.id!==id);STATE.students=STATE.students.filter(s=>s.prop!==id);STATE.maintenance=STATE.maintenance.filter(m=>m.prop!==id);STATE.pms.forEach(pm=>pm.assignedProps=pm.assignedProps.filter(pid=>pid!==id));STATE.notifications.unshift({id:Date.now(),type:'general',msg:`🗑️ Property deleted: ${prop.name}`,time:'Just now',unread:true});closeModal();toast('Property removed','error');showView('properties');renderNotifs();}
-function showAddPM(editId){if(!['director','ops'].includes(currentUser.role)) return;const pm=STATE.pms.find(x=>x.id===editId);openModal(`
-  <div class="modal-title">${pm?'Edit PM':'Add Portfolio Manager'}</div>
-  <div class="modal-sub">Assign properties directly to the PM with explicit property selection.</div>
-  <div style="display:grid;gap:14px">
-    <div><label class="lbl">Full name</label><input class="inp" id="pm-name" value="${pm?.name||''}" placeholder="e.g. Emihle Bantshi"></div>
-    <div><label class="lbl">Email</label><input class="inp" id="pm-email" value="${pm?.email||''}" placeholder="emihle@nestmanager.app"></div>
-    <div><label class="lbl">Assigned properties</label><div class="checkbox-grid">${STATE.properties.map(prop=>`
-      <label class="checkbox-chip"><input type="checkbox" class="pm-assign" value="${prop.id}" ${pm?.assignedProps.includes(prop.id)?'checked':''}/> ${prop.name}</label>`).join('')}</div></div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-orange" style="flex:1" onclick="savePM('${pm?.id||''}')">${pm?'Save changes':'Create PM'}</button>
-  </div>
-`);}
-function savePM(id){const name=document.getElementById('pm-name').value.trim();const email=document.getElementById('pm-email').value.trim();const assigned=Array.from(document.querySelectorAll('.pm-assign:checked')).map(input=>input.value);if(!name||!email||assigned.length===0){toast('Provide name, email and at least one property','error');return;}if(id){const pm=STATE.pms.find(x=>x.id===id);pm.name=name;pm.email=email;pm.assignedProps=assigned;}else{STATE.pms.push({id:'pm'+Date.now(),name,email,assignedProps:assigned});}STATE.properties.forEach(prop=>{const assignedPm=STATE.pms.find(pm=>pm.assignedProps.includes(prop.id));if(assignedPm){prop.pm=assignedPm.name;prop.pmId=assignedPm.id;}});
-STATE.notifications.unshift({id:Date.now(),type:'general',msg:`👤 PM profile saved: ${name}`,time:'Just now',unread:true});closeModal();toast('Portfolio Manager saved');showView('pms');renderNotifs();}
-function showAddHK(){if(!['pm','director','ops'].includes(currentUser.role)) return;const props=currentUser.role==='pm'?STATE.properties.filter(p=>currentUser.assignedProps.includes(p.id)):STATE.properties;openModal(`
-  <div class="modal-title">Add housekeeper</div>
-  <div class="modal-sub">Link an HK to a property so they can log maintenance and daily checklists.</div>
-  <div style="display:grid;gap:14px">
-    <div><label class="lbl">HK name</label><input class="inp" id="hk-name" placeholder="e.g. Nomsa D."></div>
-    <div><label class="lbl">Property</label><select class="inp" id="hk-prop">${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-orange" style="flex:1" onclick="saveHK()">Add HK</button>
-  </div>
-`);}
-function saveHK(){const name=document.getElementById('hk-name').value.trim();const prop=document.getElementById('hk-prop').value; if(!name||!prop){toast('Complete all fields','error');return;}STATE.hks.push({id:'hk'+Date.now(),name,prop});const property=STATE.properties.find(p=>p.id===prop);if(property){property.hk=name;}STATE.notifications.unshift({id:Date.now(),type:'hk',msg:`🧹 ${name} added for ${property.name}`,time:'Just now',unread:true,prop});closeModal();toast('Housekeeper added');showView('pms');renderNotifs();}
-function showStudentDetails(id){const student=STATE.students.find(s=>s.id===id);if(!student)return;openModal(`
-  <div class="modal-title">Student details</div>
-  <div class="modal-sub">${student.name} · ${propName(student.prop)}</div>
-  <div style="display:grid;gap:14px">
-    <div style="display:flex;justify-content:space-between"><strong>Funding</strong><span>${student.fund.toUpperCase()}</span></div>
-    <div style="display:flex;justify-content:space-between"><strong>NSFAS No.</strong><span>${student.nsfas||'—'}</span></div>
-    <div style="display:flex;justify-content:space-between"><strong>Lease</strong><span>${student.ls} → ${student.le}</span></div>
-    <div style="display:flex;justify-content:space-between"><strong>Payment</strong><span>${student.paid?'Paid':'Overdue'}</span></div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-orange" style="flex:1" onclick="closeModal()">Close</button>
-  </div>
-`);}
-function showPaymentModal(){openModal(`
-  <div class="modal-title">Record payment</div>
-  <div class="modal-sub">Update a student's rent payment status.</div>
-  <div style="display:grid;gap:14px">
-    <div><label class="lbl">Student</label><select class="inp" id="pay-student">${STATE.students.map(s=>`<option value="${s.id}">${s.name} — ${propName(s.prop)}</option>`).join('')}</select></div>
-    <div class="g2">
-      <div><label class="lbl">Amount</label><input class="inp" type="number" id="pay-amount" placeholder="3800"></div>
-      <div><label class="lbl">Payment type</label><select class="inp" id="pay-type"><option>EFT</option><option>Cash</option><option>Card</option></select></div>
-    </div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-orange" style="flex:1" onclick="recordPayment()">Save</button>
-  </div>
-`);}
-function recordPayment(){const studentId=document.getElementById('pay-student').value;const amount=parseInt(document.getElementById('pay-amount').value)||0;const student=STATE.students.find(s=>s.id===studentId);if(!student||!amount){toast('Provide student and amount','error');return;}student.paid=true;STATE.notifications.unshift({id:Date.now(),type:'payment',msg:`💰 Payment recorded for ${student.name}`,time:'Just now',unread:true,prop:student.prop});closeModal();toast('Payment recorded');showView('payments');renderNotifs();}
-function showAddMaintenance(){const props=currentUser.role==='student'?getVisibleProperties():STATE.properties;openModal(`
-  <div class="modal-title">Log maintenance issue</div>
-  <div class="modal-sub">Submit a maintenance request for a property.</div>
-  <div style="display:grid;gap:14px">
-    <div><label class="lbl">Property</label><select class="inp" id="mn-prop">${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-    <div class="g2">
-      <div><label class="lbl">Room or area</label><input class="inp" id="mn-room" placeholder="e.g. 3 or Reception"></div>
-      <div><label class="lbl">Urgency</label><select class="inp" id="mn-urg"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div>
-    </div>
-    <div><label class="lbl">Issue</label><input class="inp" id="mn-issue" placeholder="Describe the problem"></div>
-    <div><label class="lbl">Action taken</label><input class="inp" id="mn-action" placeholder="What has been done so far?"></div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-orange" style="flex:1" onclick="saveMaintenance()">Submit issue</button>
-  </div>
-`);}
-function saveMaintenance(){const prop=document.getElementById('mn-prop').value;const room=document.getElementById('mn-room').value.trim();const issue=document.getElementById('mn-issue').value.trim();const action=document.getElementById('mn-action').value.trim()||'Pending review';const urg=document.getElementById('mn-urg').value;const by=currentUser.role==='hk'?currentUser.name:(currentUser.role==='student'?'Student portal':currentUser.name);if(!room||!issue){toast('Complete room and issue','error');return;}STATE.maintenance.unshift({id:'m'+Date.now(),prop,room,issue,action,urg,status:'open',by, date:new Date().toISOString().split('T')[0]});STATE.notifications.unshift({id:Date.now(),type:'maintenance',msg:`🔧 ${issue} at ${propName(prop)} Room ${room}`,time:'Just now',unread:true,prop});closeModal();toast('Issue logged');showView('maintenance');renderNotifs();}
-function updateMaintenanceStatus(id,status){const item=STATE.maintenance.find(m=>m.id===id);if(!item) return;item.status=status;if(status==='fixed'){STATE.notifications.unshift({id:Date.now(),type:'maintenance',msg:`✅ Issue fixed: ${item.issue} at ${propName(item.prop)}`,time:'Just now',unread:true,prop:item.prop});}toast(status==='fixed'?'Marked fixed':'Status updated');showView('maintenance');renderNotifs();}
-function showTopUp(id){const entry=STATE.electricity.find(e=>e.id===id);if(!entry) return;openModal(`
-  <div class="modal-title">Top up electricity</div>
-  <div class="modal-sub">${entry.student} · Room ${entry.room}</div>
-  <div style="display:grid;gap:14px">
-    <div><label class="lbl">Units to add</label><input class="inp" id="tu-units" type="number" min="1" placeholder="100"></div>
-    <div><label class="lbl">Amount (R)</label><input class="inp" id="tu-amount" type="number" min="1" placeholder="1000"></div>
-    <div><label class="lbl">Payment method</label><select class="inp" id="tu-method"><option>EFT</option><option>Card</option><option>Cash</option></select></div>
-  </div>
-  <div style="display:flex;gap:14px;margin-top:24px">
-    <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
-    <button class="btn btn-orange" style="flex:1" onclick="saveTopUp('${id}')">Confirm</button>
-  </div>
-`);}
-function saveTopUp(id){const units=parseInt(document.getElementById('tu-units').value)||0;const amount=parseInt(document.getElementById('tu-amount').value)||0;const entry=STATE.electricity.find(e=>e.id===id);if(!units||!entry){toast('Enter a valid unit amount','error');return;}entry.units+=units;entry.last=new Date().toISOString().split('T')[0];STATE.notifications.unshift({id:Date.now(),type:'electricity',msg:`⚡ ${units} units topped up for Room ${entry.room}`,time:'Just now',unread:true,prop:entry.prop});closeModal();toast('Electricity topped up');showView('electricity');renderNotifs();}
-function showStudentIssue(){showAddMaintenance();}
-function openQR(){openModal(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div><div class="modal-title">QR Lease application</div><div class="modal-sub">Print or preview a QR lease form for students.</div></div><button class="btn btn-ghost" onclick="closeModal()">✕</button></div><div style="border:1px dashed rgba(15,24,56,.18);border-radius:22px;padding:24px;text-align:center;margin-bottom:18px"><div style="width:180px;height:180px;margin:0 auto 16px;background:#fff;border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 50px rgba(15,24,56,.08);font-size:40px;letter-spacing:1px">QR</div><div style="font-size:14px;font-weight:700;color:var(--navy)">Suburban Strand lease QR</div><div style="font-size:13px;color:var(--text3);margin-top:8px">Students scan to apply instantly.</div></div><div style="display:flex;gap:14px"><button class="btn btn-outline" style="flex:1" onclick="window.print()">Print QR</button><button class="btn btn-orange" style="flex:1" onclick="showQRForm()">Preview form</button></div>`);}
-function showQRForm(){openModal(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px"><div><div class="modal-title">Lease application form</div><div class="modal-sub">Students can submit requests directly from the QR flow.</div></div><button class="btn btn-ghost" onclick="closeModal()">✕</button></div><div style="display:grid;gap:14px"><div class="g2"><div><label class="lbl">Full name</label><input class="inp" id="qa-name" placeholder="Sipho Khumalo"></div><div><label class="lbl">ID number</label><input class="inp" id="qa-id" placeholder="0001015800080"></div></div><div class="g2"><div><label class="lbl">Phone</label><input class="inp" id="qa-phone" placeholder="071 234 5678"></div><div><label class="lbl">Preferred room</label><input class="inp" id="qa-room" placeholder="e.g. 201"></div></div><div><label class="lbl">Funding type</label><select class="inp" id="qa-fund"><option value="nsfas">NSFAS</option><option value="private">Private</option><option value="bursary">Bursary</option></select></div><div><label class="lbl">NSFAS number</label><input class="inp" id="qa-nsfas" placeholder="NSF-2025-XXXXXX"></div><div class="g2"><div><label class="lbl">Lease start</label><input class="inp" type="date" id="qa-ls"></div><div><label class="lbl">Lease end</label><input class="inp" type="date" id="qa-le"></div></div><label style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text3);"><input type="checkbox" id="qa-agree" style="accent-color:var(--orange)"> I agree to house rules and lease terms</label></div><div style="display:flex;gap:14px;margin-top:24px"><button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button><button class="btn btn-orange" style="flex:1" onclick="submitQRForm()">Submit application</button></div>`);}
-function submitQRForm(){const agree=document.getElementById('qa-agree')?.checked;const name=document.getElementById('qa-name')?.value.trim();const idno=document.getElementById('qa-id')?.value.trim();const phone=document.getElementById('qa-phone')?.value.trim();const room=document.getElementById('qa-room')?.value.trim();const fund=document.getElementById('qa-fund')?.value;const nsfas=document.getElementById('qa-nsfas')?.value.trim();const ls=document.getElementById('qa-ls')?.value;const le=document.getElementById('qa-le')?.value;if(!agree||!name||!room){toast('Complete all required fields','error');return;}const app={id:'app'+Date.now(),name,idno,phone,room,prop:'p1',propName:'Summerstrand Digs',fund,nsfas:nsfas||null,ls,le,status:'pending',date:new Date().toISOString().split('T')[0]};STATE.applications.push(app);STATE.notifications.unshift({id:Date.now(),type:'lease',msg:`📄 Lease application received: ${name}`,time:'Just now',unread:true,prop:'p1'});renderNotifs();closeModal();toast('Application submitted');}
-function renderChatContent(withInput=false){const messages=getVisibleMessages();return `
-  <div class="chat-box">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div><div style="font-size:14px;font-weight:800;color:var(--navy)">Operational chat</div><div style="font-size:12px;color:var(--text3);margin-top:4px">Messages between you and your HK team.</div></div>
-      <span class="section-pill">${messages.length} messages</span>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;overflow:auto;flex:1;padding-right:4px">
-      ${messages.map(msg=>`
-        <div class="chat-message ${msg.direction==='outgoing'?'pm':''}">
-          <div class="chat-bubble ${msg.direction==='outgoing'?'me':'from'}">
-            <div style="font-size:12px;font-weight:700;margin-bottom:6px">${msg.direction==='outgoing'?currentUser.name:msg.from}</div>
-            <div>${msg.text}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:8px">${msg.time}</div>
-          </div>
-        </div>`).join('')}
-    </div>
-    ${withInput?`<div class="chat-input"><textarea class="inp" id="chat-input" placeholder="Write a message..."></textarea><button class="btn btn-orange" style="height:54px" onclick="sendMessage()">Send</button></div>`:''}
-  </div>`;}
-function renderChat(){showView(currentView);}
-function sendMessage(){const text=document.getElementById('chat-input')?.value.trim();if(!text){toast('Write a message first','error');return;}const recipient=currentUser.role==='pm'?'HK Team':'Portfolio Manager';STATE.messages.push({id:'msg'+Date.now(),from:currentUser.name,to:recipient,prop:currentUser.assignedProps?.[0]||currentUser.prop,text, time:'Just now',direction:'outgoing'});toast('Message sent');showView(currentView);}
-const EVENT_TEMPLATES=[
-  {issue:'Geyser burst',room:'Room 3',urg:'critical',type:'maintenance'},
-  {issue:'Load shedding fault',room:'Building',urg:'urgent',type:'maintenance'},
-  {issue:'Water restriction alert',room:'Property',urg:'urgent',type:'maintenance'},
-  {issue:'Security gate offline',room:'Reception',urg:'urgent',type:'maintenance'},
-];
-function triggerEvent(source='manual'){const candidates=currentUser&&currentUser.role==='pm'?STATE.properties.filter(p=>currentUser.assignedProps.includes(p.id)):STATE.properties;const property=candidates[Math.floor(Math.random()*candidates.length)];if(!property) return;const template=EVENT_TEMPLATES[Math.floor(Math.random()*EVENT_TEMPLATES.length)];const issue=`${template.issue} at ${property.name} (${template.room})`;STATE.maintenance.unshift({id:'m'+Date.now(),prop:property.id,room:template.room,issue:template.issue,action:'Incident logged','urg':template.urg,status:'open',by:'Auto monitor',date:new Date().toISOString().split('T')[0]});STATE.notifications.unshift({id:Date.now(),type:template.type,msg:`${template.urg==='critical'?'🔴':'⚠️'} ${issue}`,time:'Just now',unread:true,prop:property.id});toast(source==='manual'?'Incident triggered':'Incident simulated','success');renderNotifs();if(currentView==='maintenance'||currentView==='dashboard'||currentView==='properties') showView(currentView);}
-document.getElementById('modal-bg').addEventListener('click',e=>{if(e.target===document.getElementById('modal-bg'))closeModal();});
+  `);
+}
 
-document.getElementById('login-logo').innerHTML=logo(true,false);
-setupDemoButtons();
-function setupDemoButtons(){const demoBtns=document.getElementById('demo-btns');if(!demoBtns) return;Object.entries(DEMO_USERS).forEach(([role,user])=>{const btn=document.createElement('button');btn.className='btn btn-ghost';btn.style.fontSize='12px';btn.style.padding='10px 12px';btn.style.width='100%';btn.innerHTML=`<span style="font-weight:700">${ROLE_LABELS[role]}</span>`;btn.onclick=()=>demoLogin(role);demoBtns.appendChild(btn);});}
+function executeAddPm() {
+  const name = document.getElementById('new-pm-name').value;
+  const email = document.getElementById('new-pm-email').value;
+  if(!name || !email) return alert('Verification check failed: Provide all field streams.');
+  
+  const id = 'pm' + (STATE.pms.length + 1);
+  STATE.pms.push({id, name, email});
+  
+  document.querySelectorAll('input[name="pm-props"]:checked').forEach(cb => {
+    let p = STATE.properties.find(prop => prop.id === cb.value);
+    if(p) p.pmId = id;
+  });
+  
+  closeModal();
+  renderContent();
+}
 
-showScreen('s-welcome');
-</script>
-</body>
-</html>
+function deletePm(id) {
+  if(!confirm("Security override verification request: Terminate this manager node permanently?")) return;
+  STATE.pms = STATE.pms.filter(p => p.id !== id);
+  STATE.properties.forEach(p => { if(p.pmId === id) p.pmId = null; });
+  renderContent();
+}
+
+// Accommodation Asset CRUD Configuration Nodes
+function openAddPropertyModal() {
+  let pmOptions = STATE.pms.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  openModal(`
+    <h2 class="modal-title">Manual Accommodation Provision Setup</h2>
+    <p class="modal-sub">Manually deploy a physical student digs infrastructure profile asset into the system metrics maps.</p>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div><label class="lbl">Property Name</label><input class="inp" id="new-prop-name"
