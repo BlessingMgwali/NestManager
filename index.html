@@ -998,44 +998,247 @@ function rRAs(){
 
 function rStudents(){
   const m=document.getElementById('app-content');
-  const students=scopeStudents();
+  const allStudents=scopeStudents();
+  const props=scopeProps();
+
   m.innerHTML=`
-    <div class="flex-between mb20">
-      <div><h1 class="ptitle">Students</h1><p class="psub" style="margin-bottom:0">${students.length} residents across your properties.</p></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost" onclick="printStudents()">🖨️ Print</button>
-        <button class="btn btn-navy" onclick="mAddStudent()">+ Add Student</button>
+    <div class="flex-between mb16">
+      <div>
+        <h1 class="ptitle">Students</h1>
+        <p class="psub" style="margin-bottom:0" id="grid-count">${allStudents.length} residents</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="printStudents()">🖨️ Print</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyGridAll()">📋 Copy All</button>
+        <button class="btn btn-navy btn-sm" onclick="mAddStudent()">+ Add Student</button>
       </div>
     </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Name</th><th>ID Number</th><th>Property</th><th>Room</th><th>Funding</th><th>Rent</th><th>Payment</th><th>Arrears</th><th></th></tr></thead>
-          <tbody id="students-tb"></tbody>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+      <input id="grid-search" class="inp" style="width:200px;padding:8px 12px;font-size:12px" placeholder="🔍 Search name or room..." oninput="filterGrid()">
+      <select id="grid-prop" class="inp" style="width:180px;padding:8px 12px;font-size:12px" onchange="filterGrid()">
+        <option value="">All Properties</option>
+        ${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}
+      </select>
+      <select id="grid-fund" class="inp" style="width:140px;padding:8px 12px;font-size:12px" onchange="filterGrid()">
+        <option value="">All Funding</option>
+        <option value="nsfas">NSFAS</option>
+        <option value="private">Private</option>
+      </select>
+      <select id="grid-pay" class="inp" style="width:140px;padding:8px 12px;font-size:12px" onchange="filterGrid()">
+        <option value="">All Payments</option>
+        <option value="paid">Paid</option>
+        <option value="unpaid">Unpaid</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="clearGridFilters()">Clear</button>
+    </div>
+
+    <!-- Grid -->
+    <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(12,26,52,.1);box-shadow:var(--shadow-soft)">
+      <div style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 280px)">
+        <table id="student-grid" style="width:100%;border-collapse:collapse;font-size:13px;min-width:900px">
+          <thead>
+            <tr style="background:linear-gradient(135deg,var(--navy),var(--navy2));position:sticky;top:0;z-index:5">
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;position:sticky;left:0;background:var(--navy);z-index:6;min-width:180px">#&nbsp;&nbsp;STUDENT NAME</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:140px">ID NUMBER</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:160px">PROPERTY</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:80px">ROOM</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:90px">FUNDING</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:100px">RENT/MO</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:100px">PAYMENT</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:110px">ARREARS</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:100px">STATUS</th>
+              <th style="padding:13px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.1em;text-align:left;white-space:nowrap;min-width:120px">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="grid-tbody"></tbody>
         </table>
       </div>
-    </div>`;
-  const tb=document.getElementById('students-tb');
-  if(!students.length){tb.innerHTML=`<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">No students yet.</td></tr>`;return;}
-  students.forEach(s=>{
-    const prop=DB.properties.find(p=>p.id===s.propId);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td><strong>${s.name}</strong></td>
-      <td style="font-size:11px;color:var(--text3)">${s.idNum||'—'} <button onclick="copyText('${s.idNum||''}')" style="background:none;border:none;color:var(--blue);cursor:pointer" title="Copy">📋</button></td>
-      <td>${prop?.name||'?'}</td>
-      <td>Rm ${s.room}</td>
-      <td><span class="pill ${s.fund==='nsfas'?'pg':'pb'}">${s.fund.toUpperCase()}</span></td>
-      <td>R ${s.rent.toLocaleString()}</td>
-      <td><span class="pill ${s.paid?'pg':'pr'}">${s.paid?'Paid':'Unpaid'}</span></td>
-      <td style="color:${s.arrears?'var(--red)':'var(--green)'};font-weight:700">${s.arrears?'R '+s.arrears.toLocaleString():'—'}</td>
-      <td><div style="display:flex;gap:5px">
-        ${!s.paid?`<button class="btn-success" onclick="markPaid('${s.id}')">Paid</button>`:''}
-        <button class="btn-danger" onclick="delStudent('${s.id}')">✕</button>
-      </div></td>
-    `;tb.appendChild(tr);
-  });
+      <!-- Summary footer -->
+      <div id="grid-footer" style="padding:12px 18px;background:#F8FAFF;border-top:1px solid rgba(12,26,52,.07);display:flex;gap:24px;flex-wrap:wrap;font-size:12px"></div>
+    </div>
+  `;
+
+  renderGridRows(allStudents);
 }
+
+function renderGridRows(students){
+  const tbody=document.getElementById('grid-tbody');
+  const footer=document.getElementById('grid-footer');
+  const count=document.getElementById('grid-count');
+  if(!tbody)return;
+  tbody.innerHTML='';
+
+  if(!students.length){
+    tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:36px;color:var(--text3);font-size:13px">No students match your filters.</td></tr>`;
+    if(footer)footer.innerHTML='';
+    return;
+  }
+
+  if(count) count.innerText=`${students.length} resident${students.length!==1?'s':''}`;
+
+  let totalRent=0,totalArrears=0,paid=0,unpaid=0;
+
+  students.forEach((s,i)=>{
+    const prop=DB.properties.find(p=>p.id===s.propId);
+    const isUnpaid=!s.paid;
+    const rowBg=isUnpaid?'rgba(220,38,38,.04)':i%2===0?'#fff':'#FAFBFD';
+    const rowBorder=isUnpaid?'border-left:3px solid #DC2626':'border-left:3px solid transparent';
+
+    totalRent+=s.rent;
+    if(s.paid)paid++;else{unpaid++;totalArrears+=s.arrears;}
+
+    const tr=document.createElement('tr');
+    tr.dataset.sid=s.id;
+    tr.style.cssText=`background:${rowBg};${rowBorder};transition:background .15s`;
+    tr.onmouseover=()=>{if(!tr.dataset.editing)tr.style.background=isUnpaid?'rgba(220,38,38,.08)':'rgba(37,120,235,.04)';};
+    tr.onmouseout=()=>{if(!tr.dataset.editing)tr.style.background=rowBg;};
+
+    tr.innerHTML=`
+      <td style="padding:11px 14px;font-weight:700;color:var(--navy);position:sticky;left:0;background:${rowBg};z-index:2;white-space:nowrap;border-bottom:1px solid rgba(12,26,52,.055)">
+        <span style="color:var(--text3);font-size:10px;margin-right:8px;font-weight:400">${String(i+1).padStart(2,'0')}</span>${s.name}
+      </td>
+      <td style="padding:11px 14px;font-size:12px;color:var(--text3);border-bottom:1px solid rgba(12,26,52,.055);white-space:nowrap">
+        <span id="idv-${s.id}">${s.idNum||'—'}</span>
+        <button onclick="copyText('${s.idNum||''}')" style="background:none;border:none;color:var(--blue);cursor:pointer;margin-left:4px;font-size:11px" title="Copy ID">📋</button>
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055);white-space:nowrap;color:var(--text2)">${prop?.name||'—'}</td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055)" class="editable-cell" onclick="editCell(this,'${s.id}','room','${s.room}')">
+        <span class="cell-val">Rm ${s.room}</span>
+        <span class="edit-hint" style="color:var(--text3);font-size:10px;margin-left:4px;opacity:0">✎</span>
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055)">
+        <span class="pill ${s.fund==='nsfas'?'pg':'pb'}" style="cursor:pointer" onclick="toggleFund('${s.id}')" title="Click to toggle">${s.fund.toUpperCase()}</span>
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055);font-weight:600;color:var(--navy)" class="editable-cell" onclick="editCell(this,'${s.id}','rent','${s.rent}')">
+        <span class="cell-val">R ${s.rent.toLocaleString()}</span>
+        <span class="edit-hint" style="color:var(--text3);font-size:10px;margin-left:4px;opacity:0">✎</span>
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055)">
+        <span class="pill ${s.paid?'pg':'pr'}" style="cursor:pointer" onclick="togglePaid('${s.id}')" title="Click to toggle">${s.paid?'✓ Paid':'✗ Unpaid'}</span>
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055);font-weight:700;color:${s.arrears?'var(--red)':'var(--text3)'}">
+        ${s.arrears?'R '+s.arrears.toLocaleString():'—'}
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055)">
+        <span class="pill ${s.status==='active'?'pg':'pgray'}">${s.status}</span>
+      </td>
+      <td style="padding:11px 14px;border-bottom:1px solid rgba(12,26,52,.055)">
+        <div style="display:flex;gap:5px">
+          ${!s.paid?`<button class="btn-success" onclick="gridMarkPaid('${s.id}')">Mark Paid</button>`:''}
+          <button class="btn-danger" onclick="delStudent('${s.id}')">✕</button>
+        </div>
+      </td>
+    `;
+
+    // show edit hints on hover
+    tr.querySelectorAll('.editable-cell').forEach(cell=>{
+      cell.style.cursor='pointer';
+      cell.onmouseover=()=>cell.querySelector('.edit-hint').style.opacity='1';
+      cell.onmouseout=()=>cell.querySelector('.edit-hint').style.opacity='0';
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  // Footer summary
+  if(footer){
+    footer.innerHTML=`
+      <div><span style="color:var(--text3)">Total students:</span> <strong>${students.length}</strong></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div><span style="color:var(--green)">✓ Paid:</span> <strong>${paid}</strong></div>
+      <div><span style="color:var(--red)">✗ Unpaid:</span> <strong>${unpaid}</strong></div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div><span style="color:var(--text3)">Total rent:</span> <strong>R ${totalRent.toLocaleString()}</strong></div>
+      <div><span style="color:var(--red)">Total arrears:</span> <strong style="color:${totalArrears?'var(--red)':'var(--text3)'}">R ${totalArrears.toLocaleString()}</strong></div>
+    `;
+  }
+}
+
+function filterGrid(){
+  const search=(document.getElementById('grid-search')?.value||'').toLowerCase();
+  const propId=document.getElementById('grid-prop')?.value||'';
+  const fund=document.getElementById('grid-fund')?.value||'';
+  const pay=document.getElementById('grid-pay')?.value||'';
+  let students=scopeStudents();
+  if(search) students=students.filter(s=>s.name.toLowerCase().includes(search)||s.room.toLowerCase().includes(search)||(s.idNum||'').includes(search));
+  if(propId) students=students.filter(s=>s.propId===propId);
+  if(fund) students=students.filter(s=>s.fund===fund);
+  if(pay==='paid') students=students.filter(s=>s.paid);
+  if(pay==='unpaid') students=students.filter(s=>!s.paid);
+  renderGridRows(students);
+}
+
+function clearGridFilters(){
+  ['grid-search','grid-prop','grid-fund','grid-pay'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  renderGridRows(scopeStudents());
+}
+
+function editCell(cell,sid,field,currentVal){
+  if(cell.dataset.editing)return;
+  cell.dataset.editing='1';
+  const valSpan=cell.querySelector('.cell-val');
+  const orig=valSpan.innerText;
+  const inp=document.createElement('input');
+  inp.value=currentVal;
+  inp.style.cssText=`width:100%;padding:4px 8px;border:2px solid var(--blue);border-radius:7px;font-size:13px;font-weight:${field==='rent'?'600':'400'};outline:none;background:#fff`;
+  valSpan.replaceWith(inp);
+  inp.focus();inp.select();
+  const save=()=>{
+    const newVal=inp.value.trim();
+    const s=DB.students.find(x=>x.id===sid);
+    if(s&&newVal){
+      if(field==='room') s.room=newVal;
+      if(field==='rent'){s.rent=parseInt(newVal)||s.rent;if(!s.paid)s.arrears=s.rent;}
+    }
+    delete cell.dataset.editing;
+    filterGrid();
+    showToast('Updated.','success');
+  };
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')save();if(e.key==='Escape'){delete cell.dataset.editing;filterGrid();}});
+  inp.addEventListener('blur',save);
+}
+
+function toggleFund(sid){
+  const s=DB.students.find(x=>x.id===sid);
+  if(!s)return;
+  s.fund=s.fund==='nsfas'?'private':'nsfas';
+  filterGrid();
+  showToast(`Funding updated to ${s.fund.toUpperCase()}.`,'success');
+}
+
+function togglePaid(sid){
+  const s=DB.students.find(x=>x.id===sid);
+  if(!s)return;
+  s.paid=!s.paid;
+  s.arrears=s.paid?0:s.rent;
+  filterGrid();
+  showToast(s.paid?`${s.name} marked as paid.`:`${s.name} marked as unpaid.`,s.paid?'success':'info');
+}
+
+function gridMarkPaid(sid){
+  const s=DB.students.find(x=>x.id===sid);
+  if(!s)return;
+  s.paid=true;s.arrears=0;
+  filterGrid();
+  showToast(`${s.name} marked as paid.`,'success');
+}
+
+function copyGridAll(){
+  const students=scopeStudents();
+  const header='#\tName\tID Number\tProperty\tRoom\tFunding\tRent\tPayment\tArrears';
+  const rows=students.map((s,i)=>{
+    const prop=DB.properties.find(p=>p.id===s.propId);
+    return `${i+1}\t${s.name}\t${s.idNum||'—'}\t${prop?.name||'—'}\tRm ${s.room}\t${s.fund.toUpperCase()}\tR${s.rent}\t${s.paid?'Paid':'Unpaid'}\t${s.arrears?'R'+s.arrears:'—'}`;
+  }).join('\n');
+  navigator.clipboard.writeText(header+'\n'+rows)
+    .then(()=>showToast(`${students.length} students copied — paste directly into Excel or Sheets.`,'success'))
+    .catch(()=>showToast('Could not copy.','error'));
+}
+
 
 function rPayments(){
   const m=document.getElementById('app-content');
