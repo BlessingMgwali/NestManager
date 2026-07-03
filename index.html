@@ -380,6 +380,14 @@ tr.crit:hover td{background:rgba(220,38,38,.05)}
   <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0">
     <div class="topbar">
       <div class="tb-title" id="tb-title">Dashboard</div>
+      <!-- Global Search -->
+      <div style="flex:1;max-width:360px;position:relative">
+        <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <input id="global-search" class="inp" style="padding:9px 12px 9px 36px;font-size:13px;border-radius:11px;background:rgba(12,26,52,.05);border-color:transparent" placeholder="Search students, properties, maintenance..." oninput="globalSearch(this.value)" onfocus="showGlobalResults()" autocomplete="off">
+        <div id="global-results" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border-radius:14px;box-shadow:0 20px 50px rgba(12,26,52,.16);border:1px solid rgba(12,26,52,.08);z-index:100;max-height:380px;overflow-y:auto"></div>
+      </div>
       <div style="display:flex;align-items:center;gap:9px">
         <button class="btn btn-orange btn-sm" onclick="triggerIncident()">⚡ Simulate Incident</button>
         <button onclick="toggleNotif()" style="position:relative;width:38px;height:38px;border-radius:11px;border:1.5px solid rgba(12,26,52,.1);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text2);cursor:pointer">
@@ -2041,6 +2049,130 @@ function printMaintenance(){
   }).join('');
   printSection('Maintenance Log',`<table><thead><tr><th>Property</th><th>Room</th><th>Issue</th><th>Reported By</th><th>Date</th><th>Priority</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>`);
 }
+
+function globalSearch(query){
+  const q=query.trim().toLowerCase();
+  const box=document.getElementById('global-results');
+  if(!box)return;
+  if(!q){box.style.display='none';return;}
+
+  const props=scopeProps();
+  const students=scopeStudents();
+  const maint=DB.maintenance.filter(x=>props.some(p=>p.id===x.propId));
+
+  const results=[];
+
+  // Search students
+  students.filter(s=>
+    s.name.toLowerCase().includes(q)||
+    (s.idNum||'').includes(q)||
+    s.room.toLowerCase().includes(q)
+  ).forEach(s=>{
+    const prop=DB.properties.find(p=>p.id===s.propId);
+    results.push({
+      type:'student',icon:'🎓',
+      title:s.name,
+      sub:`Room ${s.room} · ${prop?.name||'?'} · ${s.fund.toUpperCase()} · ${s.paid?'Paid':'Unpaid'}`,
+      badge:s.paid?'pg':'pr',
+      badgeText:s.paid?'Paid':'Unpaid',
+      action:()=>{closeGlobalSearch();switchTab('students');}
+    });
+  });
+
+  // Search properties
+  props.filter(p=>
+    p.name.toLowerCase().includes(q)||
+    p.area.toLowerCase().includes(q)
+  ).forEach(p=>{
+    const pm=DB.pms.find(x=>x.id===p.pmId);
+    results.push({
+      type:'property',icon:'🏠',
+      title:p.name,
+      sub:`${p.area} · ${p.occ}/${p.rooms} rooms · ${pm?pm.name:'No PM'}`,
+      badge:'pb',badgeText:`${Math.round(p.occ/p.rooms*100)}%`,
+      action:()=>{closeGlobalSearch();openPropertyDetail(p.id);}
+    });
+  });
+
+  // Search maintenance
+  maint.filter(x=>
+    x.issue.toLowerCase().includes(q)||
+    x.room.toLowerCase().includes(q)
+  ).forEach(x=>{
+    const pr=DB.properties.find(p=>p.id===x.propId);
+    results.push({
+      type:'maintenance',icon:'🔧',
+      title:x.issue,
+      sub:`${pr?.name||'?'} · Room ${x.room} · ${x.date}`,
+      badge:x.urg==='critical'?'pr':x.urg==='urgent'?'pa':'pb',
+      badgeText:x.urg,
+      action:()=>{closeGlobalSearch();switchTab('maintenance');setTimeout(()=>openMaintDetail(x.id),100);}
+    });
+  });
+
+  // Search PMs
+  if(['director','ops'].includes(CU?.role||'')){
+    DB.pms.filter(pm=>pm.name.toLowerCase().includes(q)||pm.email.toLowerCase().includes(q)).forEach(pm=>{
+      const count=DB.properties.filter(p=>p.pmId===pm.id).length;
+      results.push({
+        type:'pm',icon:'👔',
+        title:pm.name,
+        sub:`Portfolio Manager · ${pm.email} · ${count} properties`,
+        badge:'pgo',badgeText:'PM',
+        action:()=>{closeGlobalSearch();switchTab('pms');setTimeout(()=>viewPMDetail(pm.id),100);}
+      });
+    });
+  }
+
+  if(!results.length){
+    box.style.display='block';
+    box.innerHTML=`<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No results for "<strong>${query}</strong>"</div>`;
+    return;
+  }
+
+  const typeLabels={student:'Students',property:'Properties',maintenance:'Maintenance',pm:'Portfolio Managers'};
+  let html='';
+  let lastType='';
+  results.slice(0,12).forEach(r=>{
+    if(r.type!==lastType){
+      html+=`<div style="padding:8px 14px 4px;font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;background:#F8FAFF">${typeLabels[r.type]||r.type}</div>`;
+      lastType=r.type;
+    }
+    html+=`<div onclick="(${r.action.toString()})()" style="padding:11px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid rgba(12,26,52,.05);transition:background .14s" onmouseover="this.style.background='rgba(37,120,235,.05)'" onmouseout="this.style.background=''">
+      <span style="font-size:18px;flex-shrink:0">${r.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.title}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.sub}</div>
+      </div>
+      <span class="pill ${r.badge}" style="flex-shrink:0">${r.badgeText}</span>
+    </div>`;
+  });
+
+  if(results.length>12){
+    html+=`<div style="padding:10px 16px;text-align:center;font-size:12px;color:var(--text3)">+${results.length-12} more — refine your search</div>`;
+  }
+
+  box.style.display='block';
+  box.innerHTML=html;
+}
+
+function showGlobalResults(){
+  const q=document.getElementById('global-search')?.value||'';
+  if(q.trim()) globalSearch(q);
+}
+
+function closeGlobalSearch(){
+  const inp=document.getElementById('global-search');
+  const box=document.getElementById('global-results');
+  if(inp)inp.value='';
+  if(box)box.style.display='none';
+}
+
+// Close search results when clicking outside
+document.addEventListener('click',e=>{
+  const wrap=e.target.closest('#global-search,#global-results');
+  if(!wrap) document.getElementById('global-results')?.style && (document.getElementById('global-results').style.display='none');
+});
 
 function showToast(msg,type='info'){
   const wrap=document.getElementById('toast-wrap');
