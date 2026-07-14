@@ -749,53 +749,99 @@ function rProperties(){
 
 function openPropDetail(pid){
   const p=DB.properties.find(x=>x.id===pid);if(!p)return;
-  const pm=DB.pms.find(x=>x.id===p.pmId),ra=DB.ras.find(x=>x.propIds&&x.propIds.includes(p.id)),hk=DB.hks.find(x=>x.propId===p.id);
-  const students=DB.students.filter(s=>s.propId===p.id),maint=DB.maintenance.filter(x=>x.propId===p.id);
-  const canEdit=['director','ops'].includes(CU.role),pct=Math.round(p.occ/p.rooms*100);
-  openModal(`<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
-    <div><h2 class="modal-title">${p.name}</h2><div style="font-size:12px;color:var(--text3)">${p.area} &middot; R ${p.rent.toLocaleString()}/mo &middot; <span class="pill ${p.nsfas?'s-green':'s-amber'}">${p.nsfas?'NSFAS':'Private'}</span></div></div>
-    <button onclick="closeModal()" class="btn btn-ghost btn-sm">X</button></div>
-  <div style="height:150px;border-radius:10px;overflow:hidden;margin-bottom:12px;position:relative;background:var(--surface3)">
-    ${p.images[0]?`<img src="${p.images[0]}" style="width:100%;height:100%;object-fit:cover">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px">&#127968;</div>'}
-    <div style="position:absolute;bottom:0;left:0;right:0;padding:8px;background:linear-gradient(transparent,rgba(0,0,0,.5));display:flex;gap:4px">
-      ${p.images.map(img=>`<img src="${img}" style="width:30px;height:30px;border-radius:5px;object-fit:cover;cursor:pointer;border:2px solid rgba(255,255,255,.5)" onclick="openLightbox('${img}')">`).join('')}
-      <div onclick="triggerImgUpload('${pid}')" style="width:30px;height:30px;border-radius:5px;border:2px dashed rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff">+</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px">
-    <div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:${pct>80?'var(--green)':pct>50?'var(--blue)':'var(--amber)'}">${pct}%</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Occ.</div></div>
-    <div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700">${students.length}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Students</div></div>
-    <div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--red)">${students.filter(s=>!s.paid).length}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Unpaid</div></div>
-    <div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:${maint.filter(x=>x.status==='open').length?'var(--amber)':'var(--green)'}">${maint.filter(x=>x.status==='open').length}</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Issues</div></div>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
-    <div style="background:var(--surface2);border-radius:8px;padding:8px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:2px">PM</div><div style="font-size:12px;font-weight:600">${pm?pm.name:'Not assigned'}</div></div>
-    <div style="background:var(--surface2);border-radius:8px;padding:8px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:2px">RA</div><div style="font-size:12px;font-weight:600">${ra?ra.name:'Not assigned'}</div></div>
-    <div style="background:var(--surface2);border-radius:8px;padding:8px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:2px">HK</div><div style="font-size:12px;font-weight:600">${hk?hk.name:'Not assigned'}</div></div>
-  </div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase">Students (${students.length})</div>
-    ${students.length?`<button class="btn btn-ghost btn-xs" onclick="copyStudentList('${pid}')">Copy list</button>`:''}
-  </div>
-  ${students.length?students.map(s=>`<div style="background:var(--surface2);border-radius:9px;padding:10px;margin-bottom:6px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
-      <div><div style="font-weight:600;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Rm ${s.room} &middot; ${s.fund.toUpperCase()} &middot; ID: ${s.idNum||'&mdash;'} <button onclick="copyText('${s.idNum||''}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:10px">copy</button></div></div>
-      <div style="display:flex;gap:5px;align-items:center"><span class="pill ${s.paid?'s-green':'s-red'}">${s.paid?'Paid':'Unpaid'}</span>${canEdit&&!s.paid?`<button class="btn-success btn-xs" onclick="markPaid('${s.id}');openPropDetail('${pid}')">Mark Paid</button>`:''}</div>
-    </div>
-    ${s.notes.length?`<div style="margin-top:7px;border-top:1px solid var(--border);padding-top:6px">${s.notes.map(n=>`<div style="font-size:11px;color:var(--text2);margin-bottom:2px"><strong>${n.by}</strong>: ${n.text} <span style="color:var(--text3);font-size:10px">${n.time}</span></div>`).join('')}</div>`:''}
-    <div style="margin-top:7px;display:flex;gap:5px"><input id="note-${s.id}" class="inp" style="flex:1;padding:6px 9px;font-size:12px" placeholder="Add a note..."><button class="btn btn-navy btn-xs" onclick="addStudentNote('${s.id}','${pid}')">Add</button></div>
-  </div>`).join(''):'<div class="empty" style="padding:14px"><p>No students registered here yet.</p></div>'}
-  <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:12px 0 7px">Maintenance (${maint.length})</div>
-  ${maint.length?maint.map(x=>`<div style="background:var(--surface2);border-radius:9px;padding:10px;margin-bottom:6px;${x.urg==='critical'&&x.status==='open'?'border-left:3px solid var(--red)':''};cursor:pointer" onclick="closeModal();setTimeout(function(){openMaintDetail('${x.id}')},100)">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap">
-      <div><div style="font-weight:600;font-size:13px">${x.issue} Rm ${x.room}</div><div style="font-size:11px;color:var(--text3)">${x.by} &middot; ${x.date}</div></div>
-      <div style="display:flex;gap:4px"><span class="pill ${x.urg==='critical'?'s-red':x.urg==='urgent'?'s-amber':'s-blue'}">${x.urg}</span><span class="pill ${x.status==='open'?'s-amber':x.status==='in_progress'?'s-blue':'s-green'}">${x.status.replace('_',' ')}</span></div>
-    </div>
-  </div>`).join(''):'<div class="empty" style="padding:12px"><p>No maintenance issues.</p></div>'}
-  `);
+  const pm=DB.pms.find(x=>x.id===p.pmId);
+  const ra=DB.ras.find(x=>x.propIds&&x.propIds.includes(p.id));
+  const hk=DB.hks.find(x=>x.propId===p.id);
+  const students=DB.students.filter(s=>s.propId===p.id);
+  const maint=DB.maintenance.filter(x=>x.propId===p.id);
+  const canEdit=['director','ops'].includes(CU.role);
+  const pct=Math.round(p.occ/p.rooms*100);
+
+  const mb=document.getElementById('modal-bg'),mbox=document.getElementById('modal-box');
+  if(!mbox||!mb)return;
+  mbox.innerHTML='';mb.classList.add('open');
+
+  // Header
+  const hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px';
+  hdr.innerHTML='<div><h2 class="modal-title">'+p.name+'</h2><div style="font-size:12px;color:var(--text3)">'+p.area+' &middot; R '+p.rent.toLocaleString()+'/mo &middot; <span class="pill '+(p.nsfas?'s-green':'s-amber')+'">'+(p.nsfas?'NSFAS':'Private')+'</span></div></div><button onclick="closeModal()" class="btn btn-ghost btn-sm">X</button>';
+  mbox.appendChild(hdr);
+
+  // Hero image
+  const hero=document.createElement('div');
+  hero.style.cssText='height:150px;border-radius:10px;overflow:hidden;margin-bottom:12px;position:relative;background:var(--surface3)';
+  let heroContent=p.images[0]?'<img src="'+p.images[0]+'" style="width:100%;height:100%;object-fit:cover">'
+    :'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px">&#127968;</div>';
+  let thumbs='';
+    p.images.forEach(function(img){thumbs+='<img src="'+img+'" style="width:30px;height:30px;border-radius:5px;object-fit:cover;cursor:pointer;border:2px solid rgba(255,255,255,.5)" onclick="openLightbox(this.src)" >';});
+    thumbs+='<div data-pid="'+pid+'" onclick="triggerImgUpload(this.dataset.pid)" style="width:30px;height:30px;border-radius:5px;border:2px dashed rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff">+</div>';
+  hero.innerHTML=heroContent+'<div style="position:absolute;bottom:0;left:0;right:0;padding:8px;background:linear-gradient(transparent,rgba(0,0,0,.5));display:flex;gap:4px">'+thumbs+'</div>';
+  mbox.appendChild(hero);
+
+  // Stats row
+  const stats=document.createElement('div');
+  stats.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px';
+  const openIssues=maint.filter(x=>x.status==='open').length;
+  stats.innerHTML='<div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-size:15px;font-weight:700;color:'+(pct>80?'var(--green)':pct>50?'var(--blue)':'var(--amber)')+'">'+pct+'%</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Occ.</div></div><div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-size:15px;font-weight:700">'+students.length+'</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Students</div></div><div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-size:15px;font-weight:700;color:var(--red)">'+students.filter(s=>!s.paid).length+'</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Unpaid</div></div><div style="background:var(--surface2);border-radius:8px;padding:9px;text-align:center"><div style="font-size:15px;font-weight:700;color:'+(openIssues?'var(--amber)':'var(--green)')+'">'+openIssues+'</div><div style="font-size:10px;color:var(--text3);margin-top:1px">Issues</div></div>';
+  mbox.appendChild(stats);
+
+  // Staff row
+  const staff=document.createElement('div');
+  staff.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px';
+  staff.innerHTML='<div style="background:var(--surface2);border-radius:8px;padding:8px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:2px">PM</div><div style="font-size:12px;font-weight:600">'+(pm?pm.name:'Not assigned')+'</div></div><div style="background:var(--surface2);border-radius:8px;padding:8px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:2px">RA</div><div style="font-size:12px;font-weight:600">'+(ra?ra.name:'Not assigned')+'</div></div><div style="background:var(--surface2);border-radius:8px;padding:8px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:2px">HK</div><div style="font-size:12px;font-weight:600">'+(hk?hk.name:'Not assigned')+'</div></div>';
+  mbox.appendChild(staff);
+
+  // Students section header
+  const stuHdr=document.createElement('div');
+  stuHdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px';
+    stuHdr.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase">Students ('+students.length+')</div>'+(students.length?'<button class="btn btn-ghost btn-xs" onclick="copyStudentList(this.dataset.pid)" data-pid="'+pid+'">Copy list</button>':'');
+  mbox.appendChild(stuHdr);
+
+  // Student cards
+  if(!students.length){
+    const emp=document.createElement('div');emp.className='empty';emp.style.padding='14px';emp.innerHTML='<p>No students registered here yet.</p>';mbox.appendChild(emp);
+  } else {
+    students.forEach(function(s){
+      const card=document.createElement('div');
+      card.style.cssText='background:var(--surface2);border-radius:9px;padding:10px;margin-bottom:6px';
+            const copyIdBtn='<button onclick="copyText(this.dataset.id)" data-id="'+(s.idNum||'')+'" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:10px">copy</button>';
+      const markPaidBtn=canEdit&&!s.paid?'<button class="btn-success btn-xs" onclick="markPaid(this.dataset.sid)" data-sid="'+s.id+'">Mark Paid</button>':'';
+      const topRow='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><div style="font-weight:600;font-size:13px">'+s.name+'</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Rm '+s.room+' &middot; '+s.fund.toUpperCase()+' &middot; ID: '+(s.idNum||'&mdash;')+' '+copyIdBtn+'</div></div><div style="display:flex;gap:5px;align-items:center"><span class="pill '+(s.paid?'s-green':'s-red')+'">'+(s.paid?'Paid':'Unpaid')+'</span>'+markPaidBtn+'</div></div>';
+      let notesHTML='';
+      if(s.notes&&s.notes.length){
+        notesHTML='<div style="margin-top:7px;border-top:1px solid var(--border);padding-top:6px">';
+        s.notes.forEach(function(n){notesHTML+='<div style="font-size:11px;color:var(--text2);margin-bottom:2px"><strong>'+n.by+'</strong>: '+n.text+' <span style="color:var(--text3);font-size:10px">'+n.time+'</span></div>';});
+        notesHTML+='</div>';
+      }
+            const noteRow='<div style="margin-top:7px;display:flex;gap:5px"><input id="note-'+s.id+'" class="inp" style="flex:1;padding:6px 9px;font-size:12px" placeholder="Add a note..."><button class="btn btn-navy btn-xs" data-sid="'+s.id+'" data-pid="'+pid+'" onclick="addStudentNote(this.dataset.sid,this.dataset.pid)">Add</button></div>';
+      card.innerHTML=topRow+notesHTML+noteRow;
+      mbox.appendChild(card);
+    });
+  }
+
+  // Maintenance section header
+  const maintHdr=document.createElement('div');
+  maintHdr.style.cssText='font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:12px 0 7px';
+  maintHdr.innerText='Maintenance ('+maint.length+')';
+  mbox.appendChild(maintHdr);
+
+  // Maintenance cards
+  if(!maint.length){
+    const emp2=document.createElement('div');emp2.className='empty';emp2.style.padding='12px';emp2.innerHTML='<p>No maintenance issues.</p>';mbox.appendChild(emp2);
+  } else {
+    maint.forEach(function(x){
+      const card=document.createElement('div');
+      const borderStyle=(x.urg==='critical'&&x.status==='open')?'border-left:3px solid var(--red);':'';
+      card.style.cssText='background:var(--surface2);border-radius:9px;padding:10px;margin-bottom:6px;'+borderStyle+'cursor:pointer';
+      card.onclick=function(){closeModal();setTimeout(function(){openMaintDetail(x.id);},100);};
+      card.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap"><div><div style="font-weight:600;font-size:13px">'+x.issue+' Rm '+x.room+'</div><div style="font-size:11px;color:var(--text3)">'+x.by+' &middot; '+x.date+'</div></div><div style="display:flex;gap:4px"><span class="pill '+(x.urg==='critical'?'s-red':x.urg==='urgent'?'s-amber':'s-blue')+'">'+x.urg+'</span><span class="pill '+(x.status==='open'?'s-amber':x.status==='in_progress'?'s-blue':'s-green')+'">'+x.status.replace('_',' ')+'</span></div></div>';
+      mbox.appendChild(card);
+    });
+  }
+
   if(!document.getElementById('img-file-input')){
     const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.id='img-file-input';inp.style.display='none';
-    inp.addEventListener('change',e=>handleImgUpload(e,window._imgPid));document.body.appendChild(inp);
+    inp.addEventListener('change',function(e){handleImgUpload(e,window._imgPid);});document.body.appendChild(inp);
   }
 }
 function triggerImgUpload(pid){window._imgPid=pid;const el=document.getElementById('img-file-input');if(el)el.click();}
@@ -814,7 +860,12 @@ function addStudentNote(sid,pid){
 
 function rPMs(){
   const m=document.getElementById('app-content');
-  m.innerHTML='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px"><div><h1 class="ptitle">Portfolio Managers</h1><p class="psub">Each PM has a fully isolated portfolio.</p></div><button class="btn btn-primary" onclick="mAddPM()">+ Add PM</button></div>';
+  if(!m)return;
+  m.innerHTML='';
+  const hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px';
+  hdr.innerHTML='<div><h1 class="ptitle">Portfolio Managers</h1><p class="psub">Each PM has a fully isolated portfolio. PMs cannot see each other\'s data.</p></div><button class="btn btn-primary" onclick="mAddPM()">+ Add PM</button>';
+  m.appendChild(hdr);
   if(!DB.pms.length){m.innerHTML+='<div class="card"><div class="empty"><p>No portfolio managers yet.</p></div></div>';return;}
   DB.pms.forEach(pm=>{
     const myProps=DB.properties.filter(p=>p.pmId===pm.id),myRAs=DB.ras.filter(r=>r.pmId===pm.id);
@@ -833,42 +884,59 @@ function rPMs(){
         <div style="text-align:center;padding:9px;background:var(--surface2);border-radius:8px"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700">${myStudents.length}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Students</div></div>
         <div style="text-align:center;padding:9px;background:${unpaid?'rgba(226,68,92,.08)':'rgba(0,200,117,.08)'};border-radius:8px"><div style="font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:${unpaid?'var(--red)':'var(--green)'}">${unpaid}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Unpaid</div></div>
       </div>
-      ${myProps.length?`<div style="padding:5px 18px 13px;display:flex;gap:5px;flex-wrap:wrap">${myProps.map(p=>`<span class="tag" style="cursor:pointer" onclick="openPropDetail('${p.id}')">${p.name}</span>`).join('')}</div>`:''}
+      ${myProps.length?`<div style="padding:5px 18px 13px;display:flex;gap:5px;flex-wrap:wrap">${myProps.map(p=>'<span class="tag" style="cursor:pointer" onclick="openPropDetail(\'' +p.id+ '\')">'+p.name+'</span>').join('')}</div>`:''}
     </div>`;
   });
 }
 
 function viewPMDetail(pmId){
   const pm=DB.pms.find(x=>x.id===pmId);if(!pm)return;
-  const props=DB.properties.filter(p=>p.pmId===pmId),ras=DB.ras.filter(r=>r.pmId===pmId);
+  const props=DB.properties.filter(p=>p.pmId===pmId);
+  const ras=DB.ras.filter(r=>r.pmId===pmId);
   const students=DB.students.filter(s=>props.some(p=>p.id===s.propId));
-  openModal(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h2 class="modal-title">${pm.name}'s Portfolio</h2><button onclick="closeModal()" class="btn btn-ghost btn-sm">X</button></div>
-  <div class="g3 mb14">
-    <div style="background:var(--surface2);border-radius:9px;padding:11px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700">${props.length}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Properties</div></div>
-    <div style="background:var(--surface2);border-radius:9px;padding:11px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700">${students.length}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Students</div></div>
-    <div style="background:var(--surface2);border-radius:9px;padding:11px;text-align:center"><div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700">R ${students.filter(s=>s.paid).reduce((a,s)=>a+s.rent,0).toLocaleString()}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Collected</div></div>
-  </div>
-  <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px">Properties</div>
-  ${props.map(p=>`<div style="background:var(--surface2);border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .12s" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='var(--surface2)'" onclick="closeModal();openPropDetail('${p.id}')">
-    ${p.images[0]?`<img src="${p.images[0]}" style="width:34px;height:34px;border-radius:7px;object-fit:cover">`:'<div style="width:34px;height:34px;border-radius:7px;background:var(--surface3);display:flex;align-items:center;justify-content:center">&#127968;</div>'}
-    <div style="flex:1"><div style="font-weight:600;font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--text3)">${p.area} &middot; ${p.occ}/${p.rooms}</div></div>
-    <span class="pill s-blue">${Math.round(p.occ/p.rooms*100)}%</span>
-  </div>`).join('')}
-  <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:12px 0 7px">Students (${students.length})</div>
-  <div style="max-height:150px;overflow-y:auto">${students.map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-weight:500;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--text3)">Rm ${s.room} &middot; ${s.fund.toUpperCase()}</div></div><span class="pill ${s.paid?'s-green':'s-red'}">${s.paid?'Paid':'Unpaid'}</span></div>`).join('')}</div>
-  `);
-}
+  const collected=students.filter(s=>s.paid).reduce((a,s)=>a+s.rent,0);
 
+  const box=document.createElement('div');
+  box.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h2 class="modal-title">'+pm.name+' Portfolio</h2><button onclick="closeModal()" class="btn btn-ghost btn-sm">X</button></div><div class="g3 mb14"><div style="background:var(--surface2);border-radius:9px;padding:11px;text-align:center"><div style="font-size:18px;font-weight:700">'+props.length+'</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Properties</div></div><div style="background:var(--surface2);border-radius:9px;padding:11px;text-align:center"><div style="font-size:18px;font-weight:700">'+students.length+'</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Students</div></div><div style="background:var(--surface2);border-radius:9px;padding:11px;text-align:center"><div style="font-size:18px;font-weight:700">R '+collected.toLocaleString()+'</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Collected</div></div></div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px">Properties</div><div id="pmd-props"></div><div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin:12px 0 7px">Students</div><div id="pmd-students" style="max-height:150px;overflow-y:auto"></div>';
+
+  const mb=document.getElementById('modal-bg'),mbox=document.getElementById('modal-box');
+  if(mbox){mbox.innerHTML='';mbox.appendChild(box);}
+  if(mb)mb.classList.add('open');
+
+  const propsEl=document.getElementById('pmd-props');
+  props.forEach(p=>{
+    const row=document.createElement('div');
+    row.style.cssText='background:var(--surface2);border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .12s';
+    row.onmouseover=function(){this.style.background='var(--surface3)';};
+    row.onmouseout=function(){this.style.background='var(--surface2)';};
+    row.onclick=function(){closeModal();openPropDetail(p.id);};
+    const pct2=Math.round(p.occ/p.rooms*100);
+    const imgEl=p.images[0]?'<img src="'+p.images[0]+'" style="width:34px;height:34px;border-radius:7px;object-fit:cover">'
+      :'<div style="width:34px;height:34px;border-radius:7px;background:var(--surface3);display:flex;align-items:center;justify-content:center">&#127968;</div>';
+    row.innerHTML=imgEl+'<div style="flex:1"><div style="font-weight:600;font-size:13px">'+p.name+'</div><div style="font-size:11px;color:var(--text3)">'+p.area+' &middot; '+p.occ+'/'+p.rooms+'</div></div><span class="pill s-blue">'+pct2+'%</span>';
+    if(propsEl)propsEl.appendChild(row);
+  });
+
+  const stuEl=document.getElementById('pmd-students');
+  students.forEach(s=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)';
+    row.innerHTML='<div style="flex:1"><div style="font-weight:500;font-size:13px">'+s.name+'</div><div style="font-size:11px;color:var(--text3)">Rm '+s.room+' &middot; '+s.fund.toUpperCase()+'</div></div><span class="pill '+(s.paid?'s-green':'s-red')+'">'+(s.paid?'Paid':'Unpaid')+'</span>';
+    if(stuEl)stuEl.appendChild(row);
+  });
+}
 function rRAs(){
   const m=document.getElementById('app-content');
+  if(!m)return;
   const ras=CU.role==='pm'?DB.ras.filter(r=>r.pmId===CU.id):CU.role==='ra'?DB.ras.filter(r=>r.id===CU.id):DB.ras;
-  m.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px"><div><h1 class="ptitle">Resident Assistants</h1><p class="psub">RAs manage their own assigned properties.</p></div>${CU.role!=='ra'?'<button class="btn btn-primary" onclick="mAddRA()">+ Add RA</button>':''}</div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Reports To</th><th>Properties</th><th>Status</th>${CU.role!=='ra'?'<th></th>':''}</tr></thead><tbody id="ra-tb"></tbody></table></div></div>`;
+  const canAdd=CU.role!=='ra';
+  m.innerHTML='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px"><div><h1 class="ptitle">Resident Assistants</h1><p class="psub">RAs manage their own assigned properties independently.</p></div>'+(canAdd?'<button class="btn btn-primary" onclick="mAddRA()">+ Add RA</button>':'')+'</div><div class="card"><div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Reports To</th><th>Properties</th><th>Status</th>'+(canAdd?'<th></th>':'')+'</tr></thead><tbody id="ra-tb"></tbody></table></div></div>';
   const tb=document.getElementById('ra-tb');if(!tb)return;
   if(!ras.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No resident assistants yet.</td></tr>';return;}
   ras.forEach(ra=>{
     const pm=ra.pmId?DB.pms.find(p=>p.id===ra.pmId):null,props=DB.properties.filter(p=>ra.propIds&&ra.propIds.includes(p.id));
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td><strong>${ra.name}</strong></td><td style="color:var(--text3)">${ra.email}</td><td>${pm?`<span class="pill s-amber">${pm.name}</span>`:'<span class="pill s-navy">Director</span>'}</td><td>${props.map(p=>`<span class="tag" style="margin-right:3px">${p.name}</span>`).join('')||'None'}</td><td><span class="pill s-green">Active</span></td>${CU.role!=='ra'?`<td><button class="btn-danger" onclick="delRA('${ra.id}')">Remove</button></td>`:''}`;
+    tr.innerHTML=`<td><strong>${ra.name}</strong></td><td style="color:var(--text3)">${ra.email}</td><td>${pm?`<span class="pill s-amber">${pm.name}</span>`:'<span class="pill s-navy">Director</span>'}</td><td>${props.map(p=>'<span class="tag" style="margin-right:3px">'+p.name+'</span>').join('')||'None'}</td><td><span class="pill s-green">Active</span></td>${CU.role!=='ra'?`<td><button class="btn-danger" onclick="delRA('${ra.id}')">Remove</button></td>`:''}`;
     tb.appendChild(tr);
   });
 }
@@ -878,7 +946,7 @@ function rStudents(){
   m.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px"><div><h1 class="ptitle">Students</h1><p class="psub" id="grid-count">${allStudents.length} residents</p></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="printStudents()">Print</button><button class="btn btn-outline btn-sm" onclick="copyGridAll()">Copy All</button><button class="btn btn-primary btn-sm" onclick="mAddStudent()">+ Add Student</button></div></div>
   <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
     <div style="position:relative"><div style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div><input id="grid-search" class="inp" style="width:190px;padding:8px 12px 8px 28px;font-size:12px" placeholder="Search name, room, ID..." oninput="filterGrid()"></div>
-    <select id="grid-prop" class="inp" style="width:160px;padding:8px 12px;font-size:12px" onchange="filterGrid()"><option value="">All Properties</option>${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select>
+    <select id="grid-prop" class="inp" style="width:160px;padding:8px 12px;font-size:12px" onchange="filterGrid()"><option value="">All Properties</option>${props.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')}</select>
     <select id="grid-fund" class="inp" style="width:120px;padding:8px 12px;font-size:12px" onchange="filterGrid()"><option value="">All Funding</option><option value="nsfas">NSFAS</option><option value="private">Private</option></select>
     <select id="grid-pay" class="inp" style="width:120px;padding:8px 12px;font-size:12px" onchange="filterGrid()"><option value="">All Payments</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select>
     <button class="btn btn-ghost btn-sm" onclick="clearGridFilters()">Clear</button>
@@ -1023,7 +1091,7 @@ function openMaintDetail(mid){
     <div style="background:var(--surface2);border-radius:9px;padding:11px"><div style="font-size:9px;font-weight:700;color:var(--text3);margin-bottom:3px">DATE</div><div style="font-weight:600">${x.date}</div></div>
   </div>
   <div style="display:flex;gap:6px;margin-bottom:14px"><span class="pill ${x.urg==='critical'?'s-red':x.urg==='urgent'?'s-amber':'s-blue'}">${x.urg} priority</span><span class="pill ${x.status==='open'?'s-amber':x.status==='in_progress'?'s-blue':'s-green'}">${x.status.replace('_',' ')}</span></div>
-  ${x.images.length?`<div class="gallery mb14">${x.images.map(img=>`<div class="gallery-thumb"><img src="${img}" onclick="openLightbox('${img}')"></div>`).join('')}</div>`:''}
+  ${x.images.length?`<div class="gallery mb14">${x.images.map(img=>'<div class="gallery-thumb"><img src="'+img+'" onclick="openLightbox(\''+img+'\')" ></div>').join('')}</div>`:''}
   ${canEdit?`<div style="border-top:1px solid var(--border);padding-top:12px">
     <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:9px">UPDATE STATUS</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -1103,7 +1171,7 @@ function rMyRoom(){
     ${prop&&prop.images[0]?`<div style="border-radius:14px;overflow:hidden;height:200px"><img src="${prop.images[0]}" style="width:100%;height:100%;object-fit:cover"></div>`:'<div class="card" style="padding:20px;display:flex;align-items:center;justify-content:center;color:var(--text3)">No property photo yet</div>'}
   </div>
   <div class="card mb16" style="padding:18px"><h3 class="ctitle mb12">Log an Issue</h3><div class="gap12"><div class="g2"><div><label class="lbl">Location</label><input class="inp" id="std-m-room" value="Room ${s.room}" readonly></div><div><label class="lbl">Priority</label><select class="inp" id="std-m-urg"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div></div><div><label class="lbl">Description</label><input class="inp" id="std-m-issue" placeholder="Describe the problem..."></div><label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text3)">+ Attach photos<input type="file" accept="image/*" multiple style="display:none" id="std-m-imgs"></label><button class="btn btn-primary" onclick="submitStudentMaint('${s.propId}','${s.room}')">Submit Issue</button></div></div>
-  ${maint.length?`<div class="card"><div class="card-hdr"><span class="ctitle">Issues at ${prop?prop.name:''}</span></div><div class="tbl-wrap"><table><thead><tr><th>Issue</th><th>Priority</th><th>Status</th><th>Date</th></tr></thead><tbody>${maint.map(x=>`<tr><td>${x.issue}</td><td><span class="pill ${x.urg==='critical'?'s-red':x.urg==='urgent'?'s-amber':'s-blue'}">${x.urg}</span></td><td><span class="pill ${x.status==='open'?'s-amber':x.status==='in_progress'?'s-blue':'s-green'}">${x.status.replace('_',' ')}</span></td><td>${x.date}</td></tr>`).join('')}</tbody></table></div></div>`:``}`;
+  ${maint.length?`<div class="card"><div class="card-hdr"><span class="ctitle">Issues at ${prop?prop.name:''}</span></div><div class="tbl-wrap"><table><thead><tr><th>Issue</th><th>Priority</th><th>Status</th><th>Date</th></tr></thead><tbody>${maint.map(x=>'<tr><td>'+x.issue+'</td><td><span class="pill '+(x.urg==='critical'?'s-red':x.urg==='urgent'?'s-amber':'s-blue')+'">'+x.urg+'</span></td><td><span class="pill '+(x.status==='open'?'s-amber':x.status==='in_progress'?'s-blue':'s-green')+'">'+x.status.replace('_',' ')+'</span></td><td>'+x.date+'</td></tr>').join('')}</tbody></table></div></div>`:``}`;
 }
 function submitStudentMaint(propId,room){
   const ue=document.getElementById('std-m-urg'),ie=document.getElementById('std-m-issue');
@@ -1119,8 +1187,8 @@ function closeModal(){const b=document.getElementById('modal-bg');if(b)b.classLi
 function handleModalBg(e){if(e.target===document.getElementById('modal-bg'))closeModal();}
 
 function mAddProp(){
-  const pmOpts=DB.pms.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  const raOpts=DB.ras.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  const pmOpts=DB.pms.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');
+  const raOpts=DB.ras.map(r=>'<option value="'+r.id+'">'+r.name+'</option>').join('');
   openModal(`<h2 class="modal-title">Add Property</h2><p class="modal-sub">Add a new student accommodation property.</p><div class="gap12"><div><label class="lbl">Property name</label><input class="inp" id="np-name" placeholder="e.g. Ferndale Flats"></div><div class="g2"><div><label class="lbl">Area</label><input class="inp" id="np-area" placeholder="Newton Park"></div><div><label class="lbl">Total rooms</label><input class="inp" type="number" id="np-rooms" placeholder="20"></div></div><div class="g2"><div><label class="lbl">Monthly rent (R)</label><input class="inp" type="number" id="np-rent" placeholder="4000"></div><div><label class="lbl">Funding</label><select class="inp" id="np-nsfas"><option value="1">NSFAS</option><option value="0">Private</option></select></div></div><div class="g2"><div><label class="lbl">Portfolio Manager</label><select class="inp" id="np-pm"><option value="">None</option>${pmOpts}</select></div><div><label class="lbl">Resident Assistant</label><select class="inp" id="np-ra"><option value="">None</option>${raOpts}</select></div></div><div><label class="lbl">Description</label><textarea class="inp" id="np-desc" style="min-height:50px" placeholder="Brief description..."></textarea></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddProp()">Add Property</button></div></div>`);
 }
 function execAddProp(){
@@ -1147,7 +1215,7 @@ function execEditProp(pid){
 function delProp(id){const p=DB.properties.find(x=>x.id===id);if(!confirm('Remove '+p.name+'?'))return;DB.properties=DB.properties.filter(x=>x.id!==id);renderContent();showToast('Removed.','info');}
 
 function mAddPM(){
-  const propOpts=DB.properties.map(p=>`<label class="checkbox-chip"><input type="checkbox" name="pm-props" value="${p.id}"><span>${p.name}</span></label>`).join('');
+  const propOpts=DB.properties.map(p=>'<label class="checkbox-chip"><input type="checkbox" name="pm-props" value="'+p.id+'"><span>'+p.name+'</span></label>').join('');
   openModal(`<h2 class="modal-title">Add Portfolio Manager</h2><p class="modal-sub">PMs cannot see each other's portfolios.</p><div class="gap12"><div><label class="lbl">Full name</label><input class="inp" id="npm-name" placeholder="e.g. Lungile Mhlongo"></div><div><label class="lbl">Email address</label><input class="inp" id="npm-email" type="email" placeholder="lungile@yourcompany.co.za"></div><div><label class="lbl">Assign properties</label><div class="checkbox-grid">${propOpts}</div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddPM()">Add PM</button></div></div>`);
 }
 function execAddPM(){
@@ -1160,8 +1228,8 @@ function execAddPM(){
 function delPM(id){const pm=DB.pms.find(x=>x.id===id);if(!confirm('Remove '+pm.name+'?'))return;DB.pms=DB.pms.filter(x=>x.id!==id);DB.properties.forEach(p=>{if(p.pmId===id)p.pmId=null;});renderContent();showToast('PM removed.','info');}
 
 function mAddRA(){
-  const pmOpts=DB.pms.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
-  const propOpts=DB.properties.map(p=>`<label class="checkbox-chip"><input type="checkbox" name="ra-props" value="${p.id}"><span>${p.name}</span></label>`).join('');
+  const pmOpts=DB.pms.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('');
+  const propOpts=DB.properties.map(p=>'<label class="checkbox-chip"><input type="checkbox" name="ra-props" value="'+p.id+'"><span>'+p.name+'</span></label>').join('');
   openModal(`<h2 class="modal-title">Add Resident Assistant</h2><p class="modal-sub">RAs manage their own assigned properties.</p><div class="gap12"><div><label class="lbl">Full name</label><input class="inp" id="nra-name" placeholder="e.g. Sindy Mbundwini"></div><div><label class="lbl">Email address</label><input class="inp" id="nra-email" type="email" placeholder="sindy@yourcompany.co.za"></div><div><label class="lbl">Reports to</label><select class="inp" id="nra-pm"><option value="">Director / Ops</option>${pmOpts}</select></div><div><label class="lbl">Assign properties</label><div class="checkbox-grid">${propOpts}</div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddRA()">Add RA</button></div></div>`);
 }
 function execAddRA(){
@@ -1177,7 +1245,7 @@ function delRA(id){const ra=DB.ras.find(x=>x.id===id);if(!confirm('Remove '+ra.n
 
 function mAddStudent(){
   const props=scopeProps();
-  openModal(`<h2 class="modal-title">Add Student</h2><p class="modal-sub">Register a new student resident.</p><div class="gap12"><div><label class="lbl">Full name</label><input class="inp" id="ns-name" placeholder="e.g. Demo Student Two"></div><div class="g2"><div><label class="lbl">ID Number</label><input class="inp" id="ns-idnum" placeholder="0107226543082"></div><div><label class="lbl">Room number</label><input class="inp" id="ns-room" placeholder="205"></div></div><div><label class="lbl">Property</label><select class="inp" id="ns-prop"><option value="">Select property</option>${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div><div class="g2"><div><label class="lbl">Funding</label><select class="inp" id="ns-fund"><option value="nsfas">NSFAS</option><option value="private">Private</option></select></div><div><label class="lbl">Monthly rent (R)</label><input class="inp" type="number" id="ns-rent" placeholder="4000"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddStudent()">Add Student</button></div></div>`);
+  openModal(`<h2 class="modal-title">Add Student</h2><p class="modal-sub">Register a new student resident.</p><div class="gap12"><div><label class="lbl">Full name</label><input class="inp" id="ns-name" placeholder="e.g. Demo Student Two"></div><div class="g2"><div><label class="lbl">ID Number</label><input class="inp" id="ns-idnum" placeholder="0107226543082"></div><div><label class="lbl">Room number</label><input class="inp" id="ns-room" placeholder="205"></div></div><div><label class="lbl">Property</label><select class="inp" id="ns-prop"><option value="">Select property</option>${props.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')}</select></div><div class="g2"><div><label class="lbl">Funding</label><select class="inp" id="ns-fund"><option value="nsfas">NSFAS</option><option value="private">Private</option></select></div><div><label class="lbl">Monthly rent (R)</label><input class="inp" type="number" id="ns-rent" placeholder="4000"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddStudent()">Add Student</button></div></div>`);
 }
 function execAddStudent(){
   const ne=n=>document.getElementById(n);
@@ -1191,7 +1259,7 @@ function delStudent(id){const s=DB.students.find(x=>x.id===id);if(!confirm('Remo
 
 function mAddElec(){
   const props=scopeProps();
-  openModal(`<h2 class="modal-title">Update Electricity Units</h2><p class="modal-sub">Log current prepaid units for a property.</p><div class="gap12"><div><label class="lbl">Property</label><select class="inp" id="ne-prop"><option value="">Select property</option>${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div><div class="g2"><div><label class="lbl">Current units</label><input class="inp" type="number" id="ne-units" placeholder="250"></div><div><label class="lbl">Alert threshold</label><input class="inp" type="number" id="ne-thresh" placeholder="400" value="400"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddElec()">Save</button></div></div>`);
+  openModal(`<h2 class="modal-title">Update Electricity Units</h2><p class="modal-sub">Log current prepaid units for a property.</p><div class="gap12"><div><label class="lbl">Property</label><select class="inp" id="ne-prop"><option value="">Select property</option>${props.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')}</select></div><div class="g2"><div><label class="lbl">Current units</label><input class="inp" type="number" id="ne-units" placeholder="250"></div><div><label class="lbl">Alert threshold</label><input class="inp" type="number" id="ne-thresh" placeholder="400" value="400"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execAddElec()">Save</button></div></div>`);
 }
 function execAddElec(){
   const propId=document.getElementById('ne-prop').value,units=parseInt(document.getElementById('ne-units').value)||0,threshold=parseInt(document.getElementById('ne-thresh').value)||400;
@@ -1203,7 +1271,7 @@ function execAddElec(){
 
 function mLogMaint(){
   const props=scopeProps();
-  openModal(`<h2 class="modal-title">Log Maintenance Issue</h2><p class="modal-sub">Report a problem that needs to be fixed.</p><div class="gap12"><div><label class="lbl">Property</label><select class="inp" id="lm-prop"><option value="">Select property</option>${props.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div><div class="g2"><div><label class="lbl">Room / Location</label><input class="inp" id="lm-room" placeholder="e.g. Room 3"></div><div><label class="lbl">Priority</label><select class="inp" id="lm-urg"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div></div><div><label class="lbl">Description</label><input class="inp" id="lm-issue" placeholder="Describe the issue clearly..."></div><div><label class="lbl">Proof photos</label><label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text3)">+ Attach photos<input type="file" accept="image/*" multiple style="display:none" id="lm-imgs"></label><div id="lm-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execLogMaint()">Log Issue</button></div></div>`);
+  openModal(`<h2 class="modal-title">Log Maintenance Issue</h2><p class="modal-sub">Report a problem that needs to be fixed.</p><div class="gap12"><div><label class="lbl">Property</label><select class="inp" id="lm-prop"><option value="">Select property</option>${props.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')}</select></div><div class="g2"><div><label class="lbl">Room / Location</label><input class="inp" id="lm-room" placeholder="e.g. Room 3"></div><div><label class="lbl">Priority</label><select class="inp" id="lm-urg"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></div></div><div><label class="lbl">Description</label><input class="inp" id="lm-issue" placeholder="Describe the issue clearly..."></div><div><label class="lbl">Proof photos</label><label style="display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px dashed var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text3)">+ Attach photos<input type="file" accept="image/*" multiple style="display:none" id="lm-imgs"></label><div id="lm-preview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"></div></div><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="execLogMaint()">Log Issue</button></div></div>`);
   const fi=document.getElementById('lm-imgs');if(fi)fi.addEventListener('change',e=>{const p=document.getElementById('lm-preview');if(p){p.innerHTML='';Array.from(e.target.files).forEach(f=>{p.innerHTML+=`<img src="${URL.createObjectURL(f)}" style="width:44px;height:44px;border-radius:7px;object-fit:cover">`;});}});
 }
 function execLogMaint(){
@@ -1216,7 +1284,7 @@ function execLogMaint(){
   closeModal();renderContent();showToast('Issue logged.','success');
 }
 
-function markPaid(id){const s=DB.students.find(x=>x.id===id);if(!s)return;s.paid=true;s.arrears=0;renderContent();showToast(s.name+' marked as paid.','success');}
+function markPaid(id,pid){const s=DB.students.find(x=>x.id===id);if(!s)return;s.paid=true;s.arrears=0;if(pid)openPropDetail(pid);else renderContent();showToast(s.name+' marked as paid.','success');}
 function resolveMaint(id){const m=DB.maintenance.find(x=>x.id===id);if(m)m.status='resolved';renderContent();showToast('Resolved.','success');}
 function approveReport(id){const r=DB.reports.find(x=>x.id===id);if(r)r.status='Approved';renderContent();showToast('Report approved.','success');}
 
@@ -1313,7 +1381,7 @@ function printMaintenance(){
 function copyText(text){if(!text){showToast('Nothing to copy.','error');return;}navigator.clipboard.writeText(text).then(()=>showToast('Copied!','success')).catch(()=>showToast('Could not copy.','error'));}
 function copyStudentList(pid){
   const students=DB.students.filter(s=>s.propId===pid),prop=DB.properties.find(p=>p.id===pid);
-  const lines=students.map(s=>`${s.name}\tRoom ${s.room}\tID: ${s.idNum||''}\t${s.fund.toUpperCase()}\tR${s.rent}\t${s.paid?'Paid':'Unpaid'}`);
+  const lines=students.map(s=>s.name+'\tRoom '+s.room+'\tID: '+(s.idNum||'')+'\t'+s.fund.toUpperCase()+'\tR'+s.rent+'\t'+(s.paid?'Paid':'Unpaid'));
   navigator.clipboard.writeText((prop?prop.name+' Student List\n':'')+lines.join('\n')).then(()=>showToast('Student list copied.','success')).catch(()=>showToast('Could not copy.','error'));
 }
 
